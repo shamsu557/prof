@@ -26,46 +26,52 @@
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-    /* Container style */
+
+    /* Flexbox to ensure footer sticks to the bottom */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+
     .container {
       max-width: 400px;
-      margin-top: 70px; /* Adjusted margin-top to accommodate the moving text */
+      margin-top: 70px;
+      flex: 1; /* Ensures the container grows to fill available space */
     }
+
     .form-control {
       margin-bottom: 15px;
     }
+
     /* Footer style */
     .footer {
       background: #f8f9fa;
       color: #343a40;
       padding: 10px;
       text-align: center;
-      position: absolute;
-      bottom: 0;
-      width: 100%;
     }
+
     .footer .row {
       margin: 0;
     }
+
     .footer .col {
       padding: 0;
     }
+
     .footer p {
       margin: 0;
     }
+
     .footer a {
       color: #007bff;
       text-decoration: none;
     }
+
     .footer i {
       font-size: 24px;
-    }
-    body, html {
-      height: 100%;
-      margin: 0;
-    }
-    .container {
-      min-height: calc(100vh - 100px); /* Adjusted to ensure footer is at the bottom */
     }
   </style>
 </head>
@@ -76,7 +82,7 @@
       Welcome to the Sign-Up for our Page. Please provide your details to register as a new member of our academic platform.
     </div>
   </div>
-<br><br>
+  
   <div class="container">
     <form action="/signup" method="POST" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Sign Up</h2>
