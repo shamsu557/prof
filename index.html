@@ -7,29 +7,61 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    /* Moving text style */
+    /* Moving text style with fixed images */
     .marquee-container {
       background: #f8f9fa;
       border-bottom: 2px solid #ddd;
       overflow: hidden;
       position: relative;
-      height: 40px; /* Adjusted height */
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .marquee-text {
       white-space: nowrap;
       position: absolute;
       width: 100%;
-      line-height: 40px;
-      animation: marquee 30s linear infinite;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
+    /* Fixed circular images on each side */
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
+    }
+    /* Modal transparency */
+    .modal-transparent {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .modal-body {
+      color: white;
+      text-align: center;
+      font-size: 18px;
+    }
+    /* Modal image as rectangular */
+    .modal-body img {
+      width: 200px;
+      margin-bottom: 20px;
+    }
+    /* Access guide */
+    .modal-footer a {
+      color: white;
+      text-decoration: underline;
+      cursor: pointer;
+    }
     /* Card image style */
     .card-img-top {
-      height: 200px; /* Fixed height for images */
-      object-fit: cover; /* Ensures the image covers the area without distortion */
+      height: 200px;
+      object-fit: cover;
     }
     /* Flexbox for body and footer positioning */
     body {
@@ -39,7 +71,13 @@
       margin: 0;
     }
     .container {
-      flex: 1; /* Pushes footer to the bottom */
+      flex: 1;
+    }
+    /* Ensure books and papers are in one row for small devices */
+    @media (max-width: 768px) {
+      .row > div {
+        flex: 0 0 50%; /* Two items per row on small devices */
+      }
     }
     /* Footer style */
     .footer {
@@ -68,17 +106,19 @@
   </style>
 </head>
 <body>
-  <!-- Moving text banner -->
+  <!-- Moving text banner with fixed circular images -->
   <div class="marquee-container">
+    <img src="educap.jfif" class="fixed-image" alt="Education Cap">
     <div class="marquee-text">
-      Welcome to Professor Shamsu sabo's publications page! Discover his groundbreaking research and insightful books.
+      Welcome to Professor Shamsu Sabo's publications page! Explore his groundbreaking research and books.
     </div>
+    <img src="prof.jfif" class="fixed-image" alt="Professor Picture">
   </div>
 
   <div class="container">
     <h1 class="text-center my-4">Professor Shamsu Sabo's Publications</h1>
     
-    <!-- Books Card -->
+    <!-- Books Section -->
     <div class="card mb-4">
       <div class="card-header">
         <h2 class="mb-0">Books</h2>
@@ -116,7 +156,7 @@
       </div>
     </div>
 
-    <!-- Papers Card -->
+    <!-- Papers Section -->
     <div class="card mb-4">
       <div class="card-header">
         <h2 class="mb-0">Papers</h2>
@@ -175,7 +215,42 @@
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+  <!-- Modal Popup -->
+  <div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content modal-transparent">
+        <div class="modal-body">
+          <img src="shams.jpg" alt="Professor Picture">
+          <h4>Professor Shamsu Sabo</h4>
+          <p>
+            Professor Shamsu Sabo is a distinguished academic with expertise in computer science and engineering. With over 20 years of experience, 
+            he has contributed significantly to fields such as the Internet of Things (IoT), embedded systems, and automation technologies. His 
+            academic journey includes a Ph.D. in Embedded Systems, and his publications have influenced researchers worldwide. He has also 
+            authored several books and collaborated on numerous international projects.
+          </p>
+          <p>
+            His work in IoT applications for healthcare and smart home systems has garnered international recognition. As an educator, 
+            Professor Sabo has mentored hundreds of students and leads groundbreaking research initiatives.
+          </p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" data-dismiss="modal">Proceed to Publications</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Show modal after 3 seconds
+      setTimeout(function() {
+        $('#professorModal').modal('show');
+      }, 3000);
+    });
+  </script>
 </body>
 </html>
