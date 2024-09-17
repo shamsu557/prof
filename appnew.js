@@ -23,23 +23,6 @@ app.use(bodyParser.json());
 // Serve static files (HTML, CSS, JS, etc.) from the root directory
 app.use(express.static(path.join(__dirname)));
 
-// Middleware to prevent caching of sensitive pages
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.set('Pragma', 'no-cache');
-  res.set('Expires', '0');
-  next();
-});
-
-// Middleware to check if the user is authenticated
-function isAuthenticated(req, res, next) {
-  if (req.session.user) {
-    return next();
-  } else {
-    return res.redirect('/login');
-  }
-}
-
 // Home page (e.g., books/papers display)
 app.get('/', (req, res) => {
   db.query('SELECT * FROM books', (err, books) => {
@@ -61,7 +44,6 @@ app.get('/', (req, res) => {
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup.html'));
 });
-
 // Handle sign up
 app.post('/signup', (req, res) => {
   const { email, password } = req.body;
@@ -86,12 +68,13 @@ app.post('/signup', (req, res) => {
             console.error('Error inserting user into database:', err);
             return res.status(500).json({ success: false, message: 'Server error' });
           }
-          res.json({ success: true, message: 'Registration successful! You can now log in.', redirectUrl: '/login' });
+          res.json({ success: true, message: 'Registration successful! You can now log in.',redirectUrl: '/login' });
         });
       });
     }
   });
 });
+
 
 // Login page
 app.get('/login', (req, res) => {
@@ -115,6 +98,8 @@ app.post('/login', (req, res) => {
     const user = results[0];
     if (bcrypt.compareSync(password, user.password)) {
       req.session.user = user;
+
+      // Redirect to resources page after successful login
       res.redirect('/resources.html');
     } else {
       res.status(400).send('Incorrect password');
@@ -155,13 +140,63 @@ app.get('/read/:resource', (req, res) => {
   const resource = req.params.resource;
 
   // Ensure the resource is valid before sending it
-  const validResources = ['book1.pdf', 'book2.pdf', 'book3.pdf', 'paper1.pdf', 'paper2.pdf', 'paper3.pdf'];
+  const validResources = ['book1.pdf', 'book2.pdf', 'book3.pdf','paper1.pdf', 'paper2.pdf', 'paper3.pdf'];
   if (validResources.includes(resource)) {
     res.sendFile(path.join(__dirname, resource));
   } else {
     res.status(404).send('Resource not found');
   }
 });
+// Middleware to disable caching for sensitive pages like resources.html
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
+// Middleware to check if the user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session.user) {
+    // User is authenticated, proceed to the next middleware or route
+    return next();
+  } else {
+    // User is not authenticated, redirect to login page
+    return res.redirect('/login');
+  }
+}
+
+// Set up session
+app.use(session({
+  secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Change to true in production with HTTPS
+}));
+
+// Middleware to parse incoming request bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Serve static files (HTML, CSS, JS, etc.) from the root directory
+app.use(express.static(path.join(__dirname)));
+
+// Middleware to prevent caching of sensitive pages
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
+// Middleware to check if the user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session.user) {
+    return next();
+  } else {
+    return res.redirect('/login');
+  }
+}
 
 // Logout route
 app.get('/logout', (req, res) => {
@@ -188,12 +223,12 @@ app.get('/auth-check', (req, res) => {
     res.json({ authenticated: false });
   }
 });
-
 // Forgot password endpoint
 app.post('/forgot-password', (req, res) => {
   const { email } = req.body;
 
-  db.query('SELECT * FROM users WHERE email = ?', [email], (err, result) => {
+  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(checkEmailQuery, [email], (err, result) => {
     if (err) {
       console.error('Error checking email:', err);
       return res.status(500).send('Server error');
@@ -217,7 +252,8 @@ app.post('/reset-password', (req, res) => {
       return res.status(500).send('Server error');
     }
 
-    db.query('UPDATE users SET password = ? WHERE email = ?', [hash, email], (err, result) => {
+    const updatePasswordQuery = 'UPDATE users SET password = ? WHERE email = ?';
+    db.query(updatePasswordQuery, [hash, email], (err, result) => {
       if (err) {
         console.error('Error updating password:', err);
         return res.status(500).send('Server error');

@@ -48,6 +48,35 @@
             margin-bottom: 20px;
         }
     </style>
+    <script>
+        // Function to check authentication status
+        function checkAuth() {
+          fetch('/auth-check')
+            .then(response => response.json())
+            .then(data => {
+              if (!data.authenticated) {
+                // If not authenticated, redirect to login page
+                window.location.href = '/login';
+              }
+            })
+            .catch(err => {
+              console.error('Error checking authentication:', err);
+            });
+        }
+    
+        // Check authentication status on page load
+        window.onload = function() {
+          checkAuth();
+        };
+    
+        // Also check authentication status when navigating back/forward
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            checkAuth();
+          }
+        };
+      </script>
+      
 </head>
 <body>
     <!-- Moving text banner -->
