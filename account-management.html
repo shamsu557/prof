@@ -134,6 +134,7 @@
     </div>
   </footer>
 
+  <!-- Bootstrap JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
   <script>
@@ -144,12 +145,13 @@
         const email = $('input[name="email"]').val();
 
         $.post('/forgot-password', { email: email }, function(data) {
-          $('#message').text(data.message).show();
           if (data.success) {
-            // If email is valid, show reset form
+            $('#message').removeClass('alert-danger').addClass('alert-success').text(data.message).show();
             $('#forgotPasswordForm').hide();
             $('#resetPasswordForm').show();
             $('#resetEmail').val(email);
+          } else {
+            $('#message').removeClass('alert-success').addClass('alert-danger').text(data.message).show();
           }
         });
       });
@@ -162,12 +164,19 @@
         const confirmPassword = $('input[name="confirmPassword"]').val();
 
         if (newPassword !== confirmPassword) {
-          $('#message').text('Passwords do not match.').show();
+          $('#message').removeClass('alert-success').addClass('alert-danger').text('Passwords do not match.').show();
           return;
         }
 
         $.post('/reset-password', { email: email, newPassword: newPassword }, function(data) {
-          $('#message').text(data.message).show();
+          if (data.success) {
+            $('#message').removeClass('alert-danger').addClass('alert-success').text(data.message).show();
+            setTimeout(function() {
+              window.location.href = '/login'; // Redirect to login page
+            }, 2000); // Delay to show the message before redirect
+          } else {
+            $('#message').removeClass('alert-success').addClass('alert-danger').text(data.message).show();
+          }
         });
       });
     });

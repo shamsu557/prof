@@ -84,7 +84,7 @@
   </div>
   
   <div class="container">
-    <form action="/signup" method="POST" class="border p-4 shadow-sm rounded">
+    <form id="signup-form" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Sign Up</h2>
       <div class="form-group">
         <input type="email" name="email" class="form-control" placeholder="Email" required>
@@ -120,5 +120,32 @@
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <!-- Custom Script -->
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const formData = new FormData(event.target);
+
+      fetch('/signup', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          window.location.href = data.redirectUrl; // Redirect to the login page
+        } else {
+          alert(data.message); // Show error message
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    });
+  </script>
 </body>
 </html>

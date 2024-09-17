@@ -48,23 +48,16 @@
       font-size: 18px;
     }
     /* Modal image as circular */
-.modal-body img {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  margin-bottom: 20px;
-  object-fit: cover; /* Ensures the image is fully contained within the circle */
-}
-
-    /* Access guide */
-    .modal-footer a {
-      color: white;
-      text-decoration: underline;
-      cursor: pointer;
+    .modal-body img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      object-fit: cover; /* Ensures the image is fully contained within the circle */
     }
     /* Card image style */
     .card-img-top {
-      height: 200px;
+      height: 150px; /* Smaller image for books */
       object-fit: cover;
     }
     /* Flexbox for body and footer positioning */
@@ -79,28 +72,28 @@
     }
     /* Ensure books and papers are in one row for small devices */
     @media (min-width: 500px) {
-  .row-wrap {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .row-wrap > div {
-    flex: 0 0 33.33%; /* Three items per row for screens 500px and wider */
-    max-width: 33.33%; /* Ensure items take up one-third of the row */
-    margin-bottom: 15px; /* Adjust bottom margin as needed */
-  }
-}
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 33.33%; /* Three items per row for screens 500px and wider */
+        max-width: 33.33%; /* Ensure items take up one-third of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
 
-@media (max-width: 499px) {
-  .row-wrap {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .row-wrap > div {
-    flex: 0 0 50%; /* Two items per row for screens narrower than 500px */
-    max-width: 50%; /* Ensure items take up half of the row */
-    margin-bottom: 15px; /* Adjust bottom margin as needed */
-  }
-}
+    @media (max-width: 499px) {
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 50%; /* Two items per row for screens narrower than 500px */
+        max-width: 50%; /* Ensure items take up half of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
     /* Footer style */
     .footer {
       background: #f8f9fa;
@@ -134,43 +127,45 @@
     <div class="marquee-text">
       Welcome to Professor Shamsu Sabo's publications page! Explore his groundbreaking research and books.
     </div>
-    <div></div><img src="prof.jfif" class="fixed-image" alt="Professor Picture">
+    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
   </div>
 
   <div class="container">
     <h1 class="text-center my-4">Professor Shamsu Sabo's Publications</h1>
     
+    <!-- Access Guide Section -->
+    <div class="text-center mb-4">
+      <a href="login.html" class="btn btn-primary btn-lg">Sign up or Log In to Access All Publications</a>
+    </div>
+
     <!-- Books Section -->
     <div class="card mb-4">
       <div class="card-header">
         <h2 class="mb-0">Books</h2>
       </div>
       <div class="card-body">
-        <div class="row">
+        <div class="row row-wrap">
           <div class="col-md-4 mb-4">
             <div class="card">
-              <img src="book1.jfif" class="card-img-top" alt="Abubakar-Microcontroller Based Automatic Temperature">
+              <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
               <div class="card-body">
                 <h5 class="card-title">Data Communication and Networking</h5>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
           <div class="col-md-4 mb-4">
             <div class="card">
-              <img src="book2.jfif" class="card-img-top" alt="Abubakar-Microcontroller Based Automatic Temperature">
+              <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
               <div class="card-body">
                 <h5 class="card-title">Advanced Embedded Systems</h5>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
           <div class="col-md-4 mb-4">
             <div class="card">
-              <img src="book3.png" class="card-img-top" alt="Abubakar-Microcontroller Based Automatic Temperature">
+              <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
               <div class="card-body">
                 <h5 class="card-title">Introduction to IoT</h5>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
@@ -184,13 +179,11 @@
         <h2 class="mb-0">Papers</h2>
       </div>
       <div class="card-body">
-        <div class="row">
+        <div class="row row-wrap">
           <div class="col-md-4 mb-4">
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
-                <a href="login.html" class="btn btn-info">Read Paper</a>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
@@ -198,8 +191,6 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
-                <a href="login.html" class="btn btn-info">Read Paper</a>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
@@ -207,8 +198,6 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
-                <a href="login.html" class="btn btn-info">Read Paper</a>
-                <a href="login.html" class="btn btn-primary">Download</a>
               </div>
             </div>
           </div>
@@ -256,8 +245,7 @@
           </p>
         </div>
         <div class="modal-footer">
-            <a href="#" data-dismiss="modal">Proceed to Publications</a>
-          </div>
+          <a href="#" data-dismiss="modal">Click to Proceed to Publications</a>
         </div>
       </div>
     </div>
@@ -271,7 +259,7 @@
       // Show modal after 3 seconds
       setTimeout(function() {
         $('#professorModal').modal('show');
-      }, 3000);
+      }, 1000);
     });
   </script>
 </body>
