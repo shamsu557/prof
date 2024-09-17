@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        /* Marquee styling */
+        .marquee-container {
+            background: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+            overflow: hidden;
+            position: relative;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .marquee-text {
+            white-space: nowrap;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 50px;
+            animation: marquee 25s linear infinite;
+            font-weight: bold;
+        }
+        /* Fixed circular images on each side */
+        .fixed-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%; /* Circular */
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        /* Card image styling */
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        /* Search bar styling */
+        .search-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Moving text banner -->
+    <div class="marquee-container">
+        <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
+        <div class="marquee-text">
+            Explore our collection of books and papers! click to download or read resources instantly.
+        </div>
+        <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+    </div>  
+
+    <header class="bg-light py-3">
+        <div class="container">
+            <h1 class="text-center">Available Resources</h1>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        <!-- Search Section -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+        </div>
+
+        <h2>Books</h2>
+        <div id="booksContainer" class="row">
+            <!-- Book items -->
+            <div class="col-md-4 mb-4 book-item" data-title="Data Communication and Networking">
+                <div class="card">
+                    <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
+                    <div class="card-body">
+                        <h5 class="card-title">Data Communication and Networking</h5>
+                        <p class="card-text">Author Name or Additional Info</p>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('book1.pdf', 'download')">Download</a>
+                        <a href="#" class="btn btn-info" onclick="requestResource('book1.pdf', 'read')">Read Book</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 book-item" data-title="Advanced Embedded Systems">
+                <div class="card">
+                    <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
+                    <div class="card-body">
+                        <h5 class="card-title">Advanced Embedded Systems</h5>
+                        <p class="card-text">Author Name or Additional Info</p>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('book2.pdf', 'download')">Download</a>
+                        <a href="#" class="btn btn-info" onclick="requestResource('book2.pdf', 'read')">Read Book</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 book-item" data-title="Introduction to IoT">
+                <div class="card">
+                    <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
+                    <div class="card-body">
+                        <h5 class="card-title">Introduction to IoT</h5>
+                        <p class="card-text">Author Name or Additional Info</p>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('book3.pdf', 'download')">Download</a>
+                        <a href="#" class="btn btn-info" onclick="requestResource('book3.pdf', 'read')">Read Book</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Papers</h2>
+        <div id="papersContainer" class="row">
+            <!-- Paper items -->
+            <div class="col-md-4 mb-4 paper-item" data-title="An Arduino-based Low-Cost Hardware for Temperature Control">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
+                        <a href="#" class="btn btn-info" onclick="requestResource('paper1.pdf', 'read')">Read Paper</a>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('paper1.pdf', 'download')">Download</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 paper-item" data-title="Automatic Temperature Control System on Smart Poultry Farm Using PID Method">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
+                        <a href="#" class="btn btn-info" onclick="requestResource('paper2.pdf', 'read')">Read Paper</a>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('paper2.pdf', 'download')">Download</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 paper-item" data-title="Abubakar-Microcontroller Based Automatic Temperature">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
+                        <a href="#" class="btn btn-info" onclick="requestResource('paper3.pdf', 'read')">Read Paper</a>
+                        <a href="#" class="btn btn-primary" onclick="requestResource('paper3.pdf', 'download')">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-light py-3">
+        <div class="container text-center">
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+        </div>
+    </footer>
+    <script>
+        function requestResource(resource, action) {
+            fetch('/request-resource', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `resource=${encodeURIComponent(resource)}&action=${encodeURIComponent(action)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    console.error('Request failed');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function filterResources() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const bookItems = document.querySelectorAll('.book-item');
+            const paperItems = document.querySelectorAll('.paper-item');
+
+            bookItems.forEach(item => {
+                const title = item.getAttribute('data-title').toLowerCase();
+                item.style.display = title.includes(searchInput) ? 'block' : 'none';
+            });
+
+            paperItems.forEach(item => {
+                const title = item.getAttribute('data-title').toLowerCase();
+                item.style.display = title.includes(searchInput) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -7,20 +7,31 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <style>
-    /* Moving text style */
-    .marquee-container {
+   .marquee-container {
       background: #f8f9fa;
       border-bottom: 2px solid #ddd;
       overflow: hidden;
       position: relative;
-      height: 40px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .marquee-text {
       white-space: nowrap;
       position: absolute;
       width: 100%;
-      line-height: 40px;
-      animation: marquee 30s linear infinite;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
+    }
+    /* Fixed circular images on each side */
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
@@ -78,11 +89,12 @@
 <body>
   <!-- Moving text banner -->
   <div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
       Welcome to the Login page. Please log in to access your account and explore our services!
     </div>
-  </div>
-  
+  <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+  </div>  
   <div class="container">
     <form action="/login" method="POST" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Login</h2>
@@ -92,6 +104,7 @@
       <div class="form-group">
         <input type="password" name="password" class="form-control" placeholder="Password" required>
       </div>
+      <input type="hidden" name="redirectTo" id="redirectTo" value="">
       <button type="submit" class="btn btn-primary btn-block">Login</button>
       <p class="text-center mt-3">
         <a href="signup.html">Don't have an account? Sign up</a>
@@ -126,5 +139,14 @@
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTo = urlParams.get('redirectTo');
+      if (redirectTo) {
+        document.getElementById('redirectTo').value = redirectTo;
+      }
+    });
+  </script>
 </body>
 </html>

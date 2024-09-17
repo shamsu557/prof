@@ -7,20 +7,31 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    /* Moving text style */
-    .marquee-container {
+     .marquee-container {
       background: #f8f9fa;
       border-bottom: 2px solid #ddd;
       overflow: hidden;
       position: relative;
-      height: 40px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .marquee-text {
       white-space: nowrap;
       position: absolute;
       width: 100%;
-      line-height: 40px;
-      animation: marquee 30s linear infinite;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
+    }
+    /* Fixed circular images on each side */
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
@@ -79,9 +90,11 @@
 <body>
   <!-- Moving text banner -->
   <div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
       Welcome to Professor Shamsu Sabo's account management page. Secure your access and manage your profile effectively.
     </div>
+    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
   </div>
 
   <!-- Main content container -->
