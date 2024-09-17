@@ -118,6 +118,24 @@
     .footer i {
       font-size: 24px;
     }
+    #myBtn {
+      display: none;
+      position: fixed;
+      bottom: 15px;
+      right: 30px;
+      z-index: 99;
+      border: none;
+      outline: none;
+      background-color: rgb(210, 210, 233);
+      color: white;
+      cursor: pointer;
+      padding: 15px;
+      border-radius: 4px;
+    }
+
+    #myBtn:hover {
+      background-color: #555;
+    }
   </style>
 </head>
 <body>
@@ -197,7 +215,7 @@
                 </div>
             </div>
         </div>
-      </div></div></div>
+      </div></div></div><br>
   <!-- Footer -->
   <div class="footer">
     <div class="row">
@@ -218,12 +236,13 @@
     </div>
   </div>
 
+ 
   <!-- Modal Popup -->
   <div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content modal-transparent">
         <div class="modal-body">
-          <img src="shams.jpg" alt="Professor Picture">
+          <img src="prof.jfif" alt="Professor Picture">
           <h4>Professor Shamsu Sabo</h4>
           <p>
             Professor Shamsu Sabo is a distinguished academic with expertise in computer science and engineering. With over 20 years of experience, 
@@ -243,16 +262,37 @@
     </div>
   </div>
 
+  <!-- Back to top button -->
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+  
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
   <script>
+    // Scroll to top functionality
+    window.onscroll = function() {scrollFunction()};
+
+    function scrollFunction() {
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        document.getElementById("myBtn").style.display = "block";
+      } else {
+        document.getElementById("myBtn").style.display = "none";
+      }
+    }
+
+    function topFunction() {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    // Show modal automatically after 3 seconds
     $(document).ready(function() {
-      // Show modal after 3 seconds
       setTimeout(function() {
         $('#professorModal').modal('show');
-      }, 1000);
+      }, 3000);
     });
   </script>
+
 </body>
 </html>
