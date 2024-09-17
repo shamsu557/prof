@@ -47,11 +47,15 @@
       text-align: center;
       font-size: 18px;
     }
-    /* Modal image as rectangular */
-    .modal-body img {
-      width: 200px;
-      margin-bottom: 20px;
-    }
+    /* Modal image as circular */
+.modal-body img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  object-fit: cover; /* Ensures the image is fully contained within the circle */
+}
+
     /* Access guide */
     .modal-footer a {
       color: white;
@@ -126,11 +130,11 @@
 <body>
   <!-- Moving text banner with fixed circular images -->
   <div class="marquee-container">
-    <img src="educap.jfif" class="fixed-image" alt="Education Cap">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
       Welcome to Professor Shamsu Sabo's publications page! Explore his groundbreaking research and books.
     </div>
-    <img src="prof.jfif" class="fixed-image" alt="Professor Picture">
+    <div></div><img src="prof.jfif" class="fixed-image" alt="Professor Picture">
   </div>
 
   <div class="container">
