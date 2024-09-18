@@ -1,53 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resources</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
-    <style>
-        /* Marquee styling */
-        .marquee-container {
-            background: #f8f9fa;
-            border-bottom: 2px solid #ddd;
-            overflow: hidden;
-            position: relative;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .marquee-text {
-            white-space: nowrap;
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            line-height: 50px;
-            animation: marquee 25s linear infinite;
-            font-weight: bold;
-        }
-        /* Fixed circular images on each side */
-        .fixed-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 50%; /* Circular */
-        }
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        /* Card image styling */
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
-        /* Search bar styling */
-        .search-container {
-            margin-bottom: 20px;
-        }
-         /* Footer style */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professor's Publications</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* Moving text style with fixed images */
+    .marquee-container {
+      background: #f8f9fa;
+      border-bottom: 2px solid #ddd;
+      overflow: hidden;
+      position: relative;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .marquee-text {
+      white-space: nowrap;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    /* Fixed circular images on each side */
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
+    }
+    /* Modal transparency */
+    .modal-transparent {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .modal-body {
+      color: white;
+      text-align: center;
+      font-size: 18px;
+    }
+    /* Modal image as circular */
+    .modal-body img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      object-fit: cover; /* Ensures the image is fully contained within the circle */
+    }
+    /* Card image style */
+    .card-img-top {
+      height: 150px; /* Smaller image for books */
+      object-fit: cover;
+    }
+    /* Flexbox for body and footer positioning */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      flex: 1;
+    }
+    /* Ensure books and papers are in one row for small devices */
+    @media (min-width: 500px) {
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 33.33%; /* Three items per row for screens 500px and wider */
+        max-width: 33.33%; /* Ensure items take up one-third of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
+
+    @media (max-width: 499px) {
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 50%; /* Two items per row for screens narrower than 500px */
+        max-width: 50%; /* Ensure items take up half of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
+    /* Footer style */
     .footer {
       background: #f8f9fa;
       color: #343a40;
@@ -89,10 +136,172 @@
     #myBtn:hover {
       background-color: #555;
     }
-    </style>
-    <script>
-        // Function to check authentication status
-        function checkAuth() {
+  </style>
+</head>
+<body>
+  
+  <!-- Moving text banner -->
+  <div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
+    <div class="marquee-text">
+        Explore our collection of books and papers! Click to download or read resources instantly.
+    </div>
+    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+</div>  
+
+<header class="bg-light py-3">
+    <div class="container">
+        <h1 class="text-center">Available Resources</h1>
+    </div>
+</header>
+
+<main class="container my-4">
+    <!-- Search Section -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+    </div>
+
+    <h2>Books</h2>
+    <div id="booksContainer" class="row">
+        <!-- Book items -->
+        <div class="col-md-4 mb-4 book-item" data-title="Data Communication and Networking">
+            <div class="card">
+                <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
+                <div class="card-body">
+                    <h5 class="card-title">Data Communication and Networking</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('book1.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('book1.pdf', 'read')">Read Book</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 book-item" data-title="Advanced Embedded Systems">
+            <div class="card">
+                <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
+                <div class="card-body">
+                    <h5 class="card-title">Advanced Embedded Systems</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('book2.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('book2.pdf', 'read')">Read Book</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 book-item" data-title="Introduction to IoT">
+            <div class="card">
+                <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
+                <div class="card-body">
+                    <h5 class="card-title">Introduction to IoT</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('book3.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('book3.pdf', 'read')">Read Book</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Papers</h2>
+    <div id="papersContainer" class="row">
+        <!-- Paper items -->
+        <div class="col-md-4 mb-4 paper-item" data-title="An Arduino-based Low-Cost Hardware for Temperature Control">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('paper1.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('paper1.pdf', 'read')">Read Paper</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 paper-item" data-title="Automatic Temperature Control System on Smart Poultry Farm Using PID Method">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('paper2.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('paper2.pdf', 'read')">Read Paper</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 paper-item" data-title="Abubakar-Microcontroller Based Automatic Temperature">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
+                    <p class="card-text">Author Name or Additional Info</p>
+                    <a href="#" class="btn btn-primary" onclick="requestResource('paper3.pdf', 'download')">Download</a>
+                    <a href="#" class="btn btn-info" onclick="requestResource('paper3.pdf', 'read')">Read Paper</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-light py-3">
+        <div class="container text-center">
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</main>
+
+ <!-- Footer -->
+ <div class="footer">
+    <div class="row">
+      <div class="col-md-3">
+        <p>Professor Shamsu Sabo</p>
+      </div>
+      <div class="col-md-3">
+        <p>Professor of Computer Science</p>
+      </div>
+      <div class="col-md-3">
+        <p>University of Excellence</p>
+      </div>
+      <div class="col-md-3">
+        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Back to top button -->
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    function requestResource(resource, action) {
+        fetch('/request-resource', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `resource=${encodeURIComponent(resource)}&action=${encodeURIComponent(action)}`
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                console.error('Request failed');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function filterResources() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const bookItems = document.querySelectorAll('.book-item');
+        const paperItems = document.querySelectorAll('.paper-item');
+
+        bookItems.forEach(item => {
+            const title = item.getAttribute('data-title').toLowerCase();
+            item.style.display = title.includes(searchInput) ? 'block' : 'none';
+        });
+
+        paperItems.forEach(item => {
+            const title = item.getAttribute('data-title').toLowerCase();
+            item.style.display = title.includes(searchInput) ? 'block' : 'none';
+        });
+    }
+     // Function to check authentication status
+     function checkAuth() {
             fetch('/auth-check')
             .then(response => response.json())
             .then(data => {
@@ -117,182 +326,21 @@
                 checkAuth();
             }
         };
-    </script>
-</head>
-<body>
-    <!-- Moving text banner -->
-    <div class="marquee-container">
-        <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
-        <div class="marquee-text">
-            Explore our collection of books and papers! click to download or read resources instantly.
-        </div>
-        <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
-    </div>  
-
-    <header class="bg-light py-3">
-        <div class="container">
-            <h1 class="text-center">Available Resources</h1>
-        </div>
-    </header>
-
-    <main class="container my-4">
-        <!-- Search Section -->
-        <div class="search-container">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
-        </div>
-
-        <h2>Books</h2>
-        <div id="booksContainer" class="row">
-            <!-- Book items -->
-            <div class="col-md-4 mb-4 book-item" data-title="Data Communication and Networking">
-                <div class="card">
-                    <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
-                    <div class="card-body">
-                        <h5 class="card-title">Data Communication and Networking</h5>
-                        <p class="card-text">Author Name or Additional Info</p>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('book1.pdf', 'download')">Download</a>
-                        <a href="#" class="btn btn-info" onclick="requestResource('book1.pdf', 'read')">Read Book</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 book-item" data-title="Advanced Embedded Systems">
-                <div class="card">
-                    <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
-                    <div class="card-body">
-                        <h5 class="card-title">Advanced Embedded Systems</h5>
-                        <p class="card-text">Author Name or Additional Info</p>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('book2.pdf', 'download')">Download</a>
-                        <a href="#" class="btn btn-info" onclick="requestResource('book2.pdf', 'read')">Read Book</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 book-item" data-title="Introduction to IoT">
-                <div class="card">
-                    <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
-                    <div class="card-body">
-                        <h5 class="card-title">Introduction to IoT</h5>
-                        <p class="card-text">Author Name or Additional Info</p>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('book3.pdf', 'download')">Download</a>
-                        <a href="#" class="btn btn-info" onclick="requestResource('book3.pdf', 'read')">Read Book</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h2>Papers</h2>
-        <div id="papersContainer" class="row">
-            <!-- Paper items -->
-            <div class="col-md-4 mb-4 paper-item" data-title="An Arduino-based Low-Cost Hardware for Temperature Control">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
-                        <a href="#" class="btn btn-info" onclick="requestResource('paper1.pdf', 'read')">Read Paper</a>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('paper1.pdf', 'download')">Download</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 paper-item" data-title="Automatic Temperature Control System on Smart Poultry Farm Using PID Method">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
-                        <a href="#" class="btn btn-info" onclick="requestResource('paper2.pdf', 'read')">Read Paper</a>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('paper2.pdf', 'download')">Download</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 paper-item" data-title="Abubakar-Microcontroller Based Automatic Temperature">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
-                        <a href="#" class="btn btn-info" onclick="requestResource('paper3.pdf', 'read')">Read Paper</a>
-                        <a href="#" class="btn btn-primary" onclick="requestResource('paper3.pdf', 'download')">Download</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <footer class="bg-light py-3">
-            <div class="container text-center">
-                <a href="/logout" class="btn btn-secondary">Logout</a>
-            </div>
-        </footer>
-    </main>
-    <!-- Footer -->
-    <div class="footer">
-        <div class="row">
-          <div class="col-md-3">
-            <p>Professor Shamsu Sabo</p>
-          </div>
-          <div class="col-md-3">
-            <p>Professor of Computer Science</p>
-          </div>
-          <div class="col-md-3">
-            <p>University of Excellence</p>
-          </div>
-          <div class="col-md-3">
-            <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-              <i class="fab fa-facebook"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-
-    <!-- Back to top button -->
-    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
-
-
-    <script>
-        // Function to scroll to the top
-        function topFunction() {
-            document.body.scrollTop = 0; 
-            document.documentElement.scrollTop = 0;
+    // Back to top function
+    window.onscroll = function() { scrollFunction(); };
+    function scrollFunction() {
+        var mybutton = document.getElementById("myBtn");
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
         }
+    }
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+</script>
 
-        // Show button when scrolled down 20px from the top
-        window.onscroll = function() {scrollFunction()};
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("myBtn").style.display = "block";
-            } else {
-                document.getElementById("myBtn").style.display = "none";
-            }
-        }
-
-        // Filter resources function
-        function filterResources() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            filterItems('book-item', input);
-            filterItems('paper-item', input);
-        }
-
-        // Filter helper function
-        function filterItems(className, input) {
-            let items = document.getElementsByClassName(className);
-            Array.from(items).forEach(item => {
-                let title = item.getAttribute('data-title').toLowerCase();
-                item.style.display = title.includes(input) ? '' : 'none';
-            });
-        }
-
-        // Function to handle resource download or read requests
-        function requestResource(resource, action) {
-            fetch(`/request-resource/${resource}/${action}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (action === 'download') {
-                        window.location.href = `/download/${resource}`;
-                    } else {
-                        window.location.href = `/read/${resource}`;
-                    }
-                } else {
-                    console.error('Error:', data.message);
-                }
-            })
-            .catch(err => {
-                console.error('Error requesting resource:', err);
-            });
-        }
-    </script>
 </body>
 </html>
