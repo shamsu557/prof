@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
-   .marquee-container {
+    .marquee-container {
       background: #f8f9fa;
       border-bottom: 2px solid #ddd;
       overflow: hidden;
@@ -26,68 +26,55 @@
       animation: marquee 25s linear infinite;
       font-weight: bold;
     }
-    /* Fixed circular images on each side */
     .fixed-image {
       width: 50px;
       height: 50px;
       object-fit: cover;
-      border-radius: 50%; /* Circular */
+      border-radius: 50%;
     }
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-
-    /* Flexbox to ensure footer sticks to the bottom */
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
       margin: 0;
     }
-
     .container {
       max-width: 400px;
       margin-top: 70px;
-      flex: 1; /* Ensures the container grows to fill available space */
+      flex: 1;
     }
-
     .form-control {
       margin-bottom: 15px;
     }
-
-    /* Footer style */
     .footer {
       background: #f8f9fa;
       color: #343a40;
       padding: 10px;
       text-align: center;
     }
-
     .footer .row {
       margin: 0;
     }
-
     .footer .col {
       padding: 0;
     }
-
     .footer p {
       margin: 0;
     }
-
     .footer a {
       color: #007bff;
       text-decoration: none;
     }
-
     .footer i {
       font-size: 24px;
     }
   </style>
 </head>
 <body>
-  <!-- Moving text banner -->
   <div class="marquee-container">
     <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
@@ -100,16 +87,29 @@
     <form id="signup-form" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Sign Up</h2>
       <div class="form-group">
-        <input type="email" name="email" class="form-control" placeholder="Email" required>
+        <input type="text" name="fullname" class="form-control" placeholder="Full Name" required>
       </div>
-      <div class="form-group">
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <input type="text" name="username" class="form-control" placeholder="Username" required>
+        </div>
+        <div class="form-group col-md-6">
+          <input type="password" name="password" class="form-control" placeholder="password" required>
+        </div>
       </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <input type="email" name="email" class="form-control" placeholder="Email" required>
+        </div>
+        <div class="form-group col-md-6">
+          <input type="tel" name="phone_number" class="form-control" placeholder="Phone Number" required>
+        </div>
+      </div>
+     
       <button type="submit" class="btn btn-success btn-block">Sign Up</button>
     </form>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     <div class="row">
       <div class="col-md-3">
@@ -129,15 +129,13 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
-  <!-- Custom Script -->
   <script>
     document.getElementById('signup-form').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent default form submission
+      event.preventDefault(); 
 
       const formData = new FormData(event.target);
 
@@ -149,9 +147,9 @@
       .then(data => {
         if (data.success) {
           alert(data.message);
-          window.location.href = data.redirectUrl; // Redirect to the login page
+          window.location.href = data.redirectUrl; 
         } else {
-          alert(data.message); // Show error message
+          alert(data.message); 
         }
       })
       .catch(error => {

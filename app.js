@@ -4,6 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
+const adminRoutes = require('./admin-routes');
 
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
@@ -40,6 +41,20 @@ function isAuthenticated(req, res, next) {
   }
 }
 
+// Middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session.isAuthenticated) {
+      return next(); // User is authenticated, proceed to the dashboard
+  } else {
+      return res.redirect('/admin-login.html'); // Redirect to admin login if not authenticated
+  }
+}
+
+// Apply the middleware to your admin dashboard route
+app.get('/admin-dashboard.html', isAuthenticated, (req, res) => {
+  res.sendFile(__dirname + '/admin-dashboard.html');
+});
+
 // Home page (e.g., books/papers display)
 app.get('/', (req, res) => {
   db.query('SELECT * FROM books', (err, books) => {
@@ -64,9 +79,59 @@ app.get('/signup', (req, res) => {
 
 // Handle sign up
 app.post('/signup', (req, res) => {
-  const { email, password } = req.body;
+  const { fullname, username, email, phone_number, password } = req.body;
 
-  db.query('SELECT email FROM users WHERE email = ?', [email], (err, results) => {
+  // First, check if the email or username already exists
+  db.query('SELECT email, username FROM users WHERE email = ? OR username = ?', [email, username], (err, results) => {
+    if (err) {
+      console.error('Error querying database for signup:', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+
+    // Check if the email or username is already taken
+    if (results.length > 0) {
+      const existingUser = results[0];
+      if (existingUser.email === email) {
+        return res.status(400).json({ success: false, message: 'Email already exists' });
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({ success: false, message: 'Username already taken. Choose another username if you haven’t signed up before, or reset your password if you already have an account.' });
+      }
+    }
+
+    // If no user found, hash the password and insert the new user
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+      if (err) {
+        console.error('Error hashing password:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
+      }
+
+      db.query(
+        'INSERT INTO users (fullname, username, email, phone_number, password) VALUES (?, ?, ?, ?, ?)', 
+        [fullname, username, email, phone_number, hashedPassword], 
+        (err) => {
+          if (err) {
+            console.error('Error inserting user into database:', err);
+            return res.status(500).json({ success: false, message: 'Server error' });
+          }
+          res.json({ success: true, message: 'Registration successful! You can now log in.', redirectUrl: '/login' });
+        }
+      );
+    });
+  });
+});
+
+
+// Admin Signup page
+app.get('/admin-signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-signup.html'));
+});
+
+// Handle admin signup
+app.post('/admin-signup', (req, res) => {
+  const { username, password, email, fullName, phone } = req.body;
+
+  db.query('SELECT email FROM admins WHERE email = ?', [email], (err, results) => {
     if (err) {
       console.error('Error querying database for signup:', err);
       return res.status(500).json({ success: false, message: 'Server error' });
@@ -75,23 +140,34 @@ app.post('/signup', (req, res) => {
     if (results.length > 0) {
       return res.status(400).json({ success: false, message: 'Email already exists' });
     } else {
+      // Hash the password
       bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
         if (err) {
           console.error('Error hashing password:', err);
           return res.status(500).json({ success: false, message: 'Server error' });
         }
 
-        db.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword], (err) => {
-          if (err) {
-            console.error('Error inserting user into database:', err);
-            return res.status(500).json({ success: false, message: 'Server error' });
+        // Insert new admin into the database
+        db.query('INSERT INTO admins (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)', 
+          [username, hashedPassword, email, fullName, phone], (err) => {
+            if (err) {
+              console.error('Error inserting user into database:', err);
+              return res.status(500).json({ success: false, message: 'Server error' });
+            }
+            res.json({ success: true, message: 'Admin created successfully!. They can Now Access The Dashboard', redirectUrl: '/adminLogin' });
+
           }
-          res.json({ success: true, message: 'Registration successful! You can now log in.', redirectUrl: '/login' });
-        });
+        );
       });
     }
   });
 });
+
+// Serve the admin signup page
+app.get('/admin-signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-signup.html'));
+});
+
 
 // Login page
 app.get('/login', (req, res) => {
@@ -100,9 +176,9 @@ app.get('/login', (req, res) => {
 
 // Handle login
 app.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
 
-  db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+  db.query('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier], (err, results) => {
     if (err) {
       console.error('Error querying database for login:', err);
       return res.status(500).send('Server error');
@@ -162,6 +238,36 @@ app.get('/read/:resource', (req, res) => {
     res.status(404).send('Resource not found');
   }
 });
+// Admin login page
+app.get('/adminLogin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-login.html'));
+});
+
+// Handle admin login
+app.post('/adminLogin', (req, res) => {
+  const { username, password } = req.body;
+
+  db.query('SELECT * FROM admins WHERE username = ?', [username], (err, results) => {
+      if (err) {
+          console.error('Error querying database for admin login:', err);
+          return res.status(500).send('Server error');
+      }
+
+      if (results.length === 0) {
+          return res.status(400).send('No admin found');
+      }
+
+      const user = results[0];
+      if (bcrypt.compareSync(password, user.password)) {
+          req.session.user = user;
+          res.redirect('/admin-dashboard.html'); // Redirect to the admin dashboard
+      } else {
+          res.status(400).send('Incorrect password');
+      }
+  });
+});
+
+
 
 // Logout route
 app.get('/logout', (req, res) => {
@@ -179,6 +285,10 @@ app.get('/logout', (req, res) => {
 app.get('/resources.html', isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'resources.html'));
 });
+// Protected admin-dashboard page
+app.get('/admin-dashboard.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
+});
 
 // Auth check route (for AJAX calls)
 app.get('/auth-check', (req, res) => {
@@ -188,6 +298,15 @@ app.get('/auth-check', (req, res) => {
     res.json({ authenticated: false });
   }
 });
+app.get('/admin-auth-check', (req, res) => {
+  if (req.session.admin) {
+      res.json({ authenticated: true });
+  } else {
+      res.json({ authenticated: false });
+  }
+});
+
+
 
 // Forgot password endpoint
 app.post('/forgot-password', (req, res) => {
@@ -231,6 +350,36 @@ app.post('/reset-password', (req, res) => {
     });
   });
 });
+// Admin login route
+app.post('/adminLogin', (req, res) => {
+  const { username, password } = req.body;
+
+  // Query the admin table for matching username and password
+  const sql = 'SELECT * FROM admins WHERE username = ? AND password = ?';
+  db.query(sql, [username, password], (err, results) => {
+      if (err) throw err;
+
+      if (results.length > 0) {
+          // Successful login
+          req.session.adminLoggedIn = true;
+          res.redirect('/admin-dashboard.html');
+      } else {
+          // Invalid login
+          res.send('Invalid username or password');
+      }
+  });
+});
+
+// Admin dashboard route (optional security check)
+
+// admin Logout route
+app.get('/adminLogout', (req, res) => {
+  req.session.destroy((err) => {
+      if (err) throw err;
+      res.redirect('/admin-login.html');
+  });
+});
+app.use('/admin', adminRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Signup</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <style>
+    .marquee-container {
+      background: #f8f9fa;
+      border-bottom: 2px solid #ddd;
+      overflow: hidden;
+      position: relative;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .marquee-text {
+      white-space: nowrap;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
+    }
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
+    }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin-top: 70px;
+      flex: 1;
+    }
+
+    .form-control {
+      margin-bottom: 15px;
+    }
+
+    .footer {
+      background: #f8f9fa;
+      color: #343a40;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .footer .row {
+      margin: 0;
+    }
+
+    .footer .col {
+      padding: 0;
+    }
+
+    .footer p {
+      margin: 0;
+    }
+
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .footer i {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Moving text banner -->
+  <div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
+    <div class="marquee-text">
+      Here Admin Signup. Register to manage the platform with authorized credentials.
+    </div>
+    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+  </div>  
+  <div class="container">
+    <form id="signupForm" action="/admin-signup" method="POST" class="border p-4 shadow-sm rounded">
+      <div class="card-header text-center">
+        Admin Signup
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" required>
+          </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+          <label for="phone">Phone Number</label>
+          <input type="tel" class="form-control" id="phone" name="phone" required>
+        </div>
+        </div>
+        <div class="form-group">
+        <button type="submit" class="btn btn-primary btn-block">Create Admin</button>
+      </div></div></div>
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="row">
+      <div class="col-md-3">
+        <p>Professor Shamsu Sabo</p>
+      </div>
+      <div class="col-md-3">
+        <p>Professor of Computer Science</p>
+      </div>
+      <div class="col-md-3">
+        <p>University of Excellence</p>
+      </div>
+      <div class="col-md-3">
+        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   document.getElementById('signupForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+
+  const formData = new FormData(this);
+  const data = Object.fromEntries(formData.entries());
+
+  // Send data to the server
+  fetch('/admin-signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  .then(response => response.json())
+  .then(result => {
+    alert(result.message); // Display the response message
+
+    if (result.success) {
+      this.reset(); // Reset the form if signup is successful
+
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl; // Redirect if redirectUrl is provided
+      }
+    }
+  })
+  .catch(error => console.error('Error:', error));
+});
+
+  </script>
+</body>
+</html>

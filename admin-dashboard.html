@@ -141,9 +141,37 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
+        // Function to check admin authentication status
+function checkAdminAuth() {
+    fetch('/admin-auth-check', {
+        credentials: 'include' // Include credentials for session
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.authenticated) {
+            // If not authenticated, redirect to admin login page
+            window.location.href = '/admin-login.html';
+        }
+    })
+    .catch(err => {
+        console.error('Error checking admin authentication:', err);
+    });
+}
+
+// Check admin authentication status on page load
+window.onload = function() {
+    checkAdminAuth();
+};
+
+// Also check admin authentication status when navigating back/forward
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        checkAdminAuth();
+    }
+};
         async function fetchStats() {
             try {
-                const response = await fetch('http://localhost:3000/admin/stats', {
+                const response = await fetch('/admin/stats', {
                     credentials: 'include' // Include credentials for session
                 });
                 if (!response.ok) {
@@ -163,11 +191,13 @@
         }
 
         function logout() {
-            window.location.href = '/logout'; // Redirect to logout route
-        }
+  window.location.href = '/adminLogout'; // Redirect to admin logout route
+}
 
         // Fetch stats on page load
         window.onload = fetchStats;
+
+       
     </script>
 </body>
 </html>

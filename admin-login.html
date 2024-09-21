@@ -91,29 +91,32 @@
   <div class="marquee-container">
     <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
-      Welcome to the Login page. Please log in to access your account and explore our services!
+      Here Admin Login.you have control over the platform login with authorize creddentials
     </div>
   <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
   </div>  
   <div class="container">
-    <form action="/login" method="POST" class="border p-4 shadow-sm rounded">
-      <h2 class="text-center mb-4">Login</h2>
-      <div class="form-group">
-        <input type="text" name="identifier" class="form-control" placeholder="Email or Username" required>
+    <form action="/adminLogin" method="POST" class="border p-4 shadow-sm rounded">
+      <div class="card-header text-center">
+        Admin Login
       </div>
-      <div class="form-group">
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
-      </div>
-      <input type="hidden" name="redirectTo" id="redirectTo" value="">
-      <button type="submit" class="btn btn-primary btn-block">Login</button>
-      <p class="text-center mt-3">
-        <a href="signup.html">Don't have an account? Sign up</a>
-      </p>
-      <p class="text-center">
-        <a href="account-management.html">Forgot your password?</a>
-      </p>
-    </form>
-  </div>
+      <div class="card-body">
+        <form id="adminLoginForm" method="POST" action="/adminLogin">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
 
   <!-- Footer -->
   <div class="footer">
@@ -134,19 +137,3 @@
       </div>
     </div>
   </div>
-
-  <!-- Bootstrap JS, Popper.js, and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectTo = urlParams.get('redirectTo');
-      if (redirectTo) {
-        document.getElementById('redirectTo').value = redirectTo;
-      }
-    });
-  </script>
-</body>
-</html>

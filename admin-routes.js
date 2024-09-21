@@ -21,60 +21,25 @@ router.get('/stats', (req, res) => {
             db.query(sqlPapersCount, (err, papersResult) => {
                 if (err) throw err;
 
-                res.json({
-                    usersCount: userResult[0].count,
-                    booksCount: booksResult[0].count,
-                    papersCount: papersResult[0].count,
+                    res.json({
+                        usersCount: userResult[0].count,
+                        booksCount: booksResult[0].count,
+                        papersCount: papersResult[0].count,
+                    });
                 });
             });
         });
-    });
 });
 
-// Admin login route
-router.post('/admin-login', (req, res) => {
-    const { username, password } = req.body;
-
-    // Hardcoded admin credentials
-    const adminUsername = 'Admin';
-    const adminPassword = 'password001';
-
-    if (username === adminUsername && password === adminPassword) {
-        // Store admin login status in session
-        req.session.isAdmin = true;
-        res.json({ success: true });
-    } else {
-        res.json({ success: false });
-    }
-});
-
-// Middleware to protect the admin dashboard
-function ensureAdminAuthenticated(req, res, next) {
+// Middleware to check if admin is authenticated
+router.get('/is-logged-in', (req, res) => {
     if (req.session.isAdmin) {
-        next();
+        res.json({ isLoggedIn: true });
     } else {
-        res.redirect('/admin-login.html'); // Redirect to admin login if not authenticated
+        res.json({ isLoggedIn: false });
     }
-}
-
-// Admin dashboard route (this serves the dashboard HTML file)
-router.get('/admin-dashboard.html', ensureAdminAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
 });
 
-// Logout route
-router.get('/admin-logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).send('Error logging out.');
-        }
-        res.redirect('/admin-login.html'); // Redirect to admin login page
-    });
-});
 
-// Serve admin login page
-router.get('/admin-login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin-login.html')); // Adjust path if needed
-});
 
 module.exports = router;
