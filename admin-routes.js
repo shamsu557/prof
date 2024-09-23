@@ -86,7 +86,7 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
 
     // Check if admin exists and verify password
     const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-    
+
     db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
         if (err || adminResult.length === 0) {
             return res.status(403).json({ message: 'Invalid admin credentials' });
@@ -100,15 +100,23 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // If admin is valid, proceed to add the book
-        const sql = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-        db.query(sql, [bookTitle, fileName, dateAdded, imageName], (err) => {
+        // Check if the book title already exists in the database
+        const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
+        db.query(sqlCheckBook, [bookTitle], (err, result) => {
             if (err) throw err;
-            res.status(201).json({ message: 'Book added successfully!' });
+            if (result.length > 0) {
+                return res.status(400).json({ message: 'Book with this title already exists' });
+            }
+
+            // If no duplicate, proceed to add the book
+            const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+            db.query(sqlInsertBook, [bookTitle, fileName, dateAdded, imageName], (err) => {
+                if (err) throw err;
+                res.status(201).json({ message: 'Book added successfully!' });
+            });
         });
     });
 });
-
 // Route to add a paper
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
     const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
@@ -132,14 +140,24 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // If admin is valid, proceed to add the paper
-        const sql = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-        db.query(sql, [paperTitle, fileName, dateAdded, imageName], (err) => {
+        // Check if the paper title already exists in the database
+        const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
+        db.query(sqlCheckPaper, [paperTitle], (err, result) => {
             if (err) throw err;
-            res.status(201).json({ message: 'Paper added successfully!' });
+            if (result.length > 0) {
+                return res.status(400).json({ message: 'Paper with this title already exists' });
+            }
+
+            // If no duplicate, proceed to add the paper
+            const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+            db.query(sqlInsertPaper, [paperTitle, fileName, dateAdded, imageName], (err) => {
+                if (err) throw err;
+                res.status(201).json({ message: 'Paper added successfully!' });
+            });
         });
     });
 });
+
 
 // Route to get all users
 router.get('/getUsers', (req, res) => {
