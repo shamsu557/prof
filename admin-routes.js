@@ -207,7 +207,10 @@ router.delete('/removeUser/:id', async (req, res) => {
 // Route to remove a book
 router.delete('/removeBook/:id', async (req, res) => {
     const bookId = req.params.id;
-    const { username, password } = req.body; // Expecting username and password in the request body
+    const { username, password } = req.body;
+
+    // Log incoming request details
+    console.log(`Removing book with ID: ${bookId}, Username: ${username}`);
 
     // Check if admin exists and verify password
     const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
@@ -226,12 +229,13 @@ router.delete('/removeBook/:id', async (req, res) => {
         }
 
         // If admin is valid, proceed to delete the book
-        const sqlDeleteBook = 'DELETE FROM resources WHERE id = ? AND type = "book"'; // Ensure you're deleting from the right table
-        db.query(sqlDeleteBook, [bookId], (err) => {
+        const sqlDeleteBook = 'DELETE FROM books WHERE id = ? ';
+        db.query(sqlDeleteBook, [bookId], (err, result) => {
             if (err) {
                 console.error('Error removing book:', err);
                 return res.status(500).json({ message: 'Error removing book' });
             }
+            console.log(`Book with ID ${bookId} removed successfully.`);
             res.json({ message: 'Book removed successfully!' });
         });
     });
@@ -240,7 +244,10 @@ router.delete('/removeBook/:id', async (req, res) => {
 // Route to remove a paper
 router.delete('/removePaper/:id', async (req, res) => {
     const paperId = req.params.id;
-    const { username, password } = req.body; // Expecting username and password in the request body
+    const { username, password } = req.body;
+
+    // Log incoming request details
+    console.log(`Removing paper with ID: ${paperId}, Username: ${username}`);
 
     // Check if admin exists and verify password
     const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
@@ -260,15 +267,15 @@ router.delete('/removePaper/:id', async (req, res) => {
 
         // If admin is valid, proceed to delete the paper
         const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
-        db.query(sqlDeletePaper, [paperId], (err) => {
+        db.query(sqlDeletePaper, [paperId], (err, result) => {
             if (err) {
                 console.error('Error removing paper:', err);
                 return res.status(500).json({ message: 'Error removing paper' });
             }
+            console.log(`Paper with ID ${paperId} removed successfully.`);
             res.json({ message: 'Paper removed successfully!' });
         });
     });
 });
-
 
 module.exports = router;
