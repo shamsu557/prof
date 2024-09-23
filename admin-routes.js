@@ -78,30 +78,66 @@ router.get('/getPapers', (req, res) => {
 });
 
 // Route to add a book
-router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), (req, res) => {
-    const { bookTitle } = req.body;
+router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
+    const { bookTitle, username, password } = req.body; // Expecting username and password in the request body
     const fileName = req.files['bookFile'][0].filename;
     const imageName = req.files['bookImage'][0].filename;
     const dateAdded = new Date();
 
-    const sql = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-    db.query(sql, [bookTitle, fileName, dateAdded, imageName], (err) => {
-        if (err) throw err;
-        res.status(201).json({ message: 'Book added successfully!' });
+    // Check if admin exists and verify password
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+    
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+
+        // Compare the provided password with the hashed password in the database
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        // If admin is valid, proceed to add the book
+        const sql = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+        db.query(sql, [bookTitle, fileName, dateAdded, imageName], (err) => {
+            if (err) throw err;
+            res.status(201).json({ message: 'Book added successfully!' });
+        });
     });
 });
 
 // Route to add a paper
-router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), (req, res) => {
-    const { paperTitle } = req.body;
+router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
+    const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
     const fileName = req.files['paperFile'][0].filename;
     const imageName = req.files['paperImage'][0].filename;
     const dateAdded = new Date();
 
-    const sql = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-    db.query(sql, [paperTitle, fileName, dateAdded, imageName], (err) => {
-        if (err) throw err;
-        res.status(201).json({ message: 'Paper added successfully!' });
+    // Check if admin exists and verify password
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+
+        // Compare the provided password with the hashed password in the database
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        // If admin is valid, proceed to add the paper
+        const sql = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+        db.query(sql, [paperTitle, fileName, dateAdded, imageName], (err) => {
+            if (err) throw err;
+            res.status(201).json({ message: 'Paper added successfully!' });
+        });
     });
 });
 
@@ -151,22 +187,68 @@ router.delete('/removeUser/:id', async (req, res) => {
 });
 
 // Route to remove a book
-router.delete('/removeBook/:id', (req, res) => {
+router.delete('/removeBook/:id', async (req, res) => {
     const bookId = req.params.id;
-    const sql = 'DELETE FROM books WHERE id = ?';
-    db.query(sql, [bookId], (err) => {
-        if (err) throw err;
-        res.json({ message: 'Book removed successfully!' });
+    const { username, password } = req.body; // Expecting username and password in the request body
+
+    // Check if admin exists and verify password
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+
+        // Compare the provided password with the hashed password in the database
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        // If admin is valid, proceed to delete the book
+        const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
+        db.query(sqlDeleteBook, [bookId], (err) => {
+            if (err) {
+                console.error('Error removing book:', err);
+                return res.status(500).json({ message: 'Error removing book' });
+            }
+            res.json({ message: 'Book removed successfully!' });
+        });
     });
 });
 
 // Route to remove a paper
-router.delete('/removePaper/:id', (req, res) => {
+router.delete('/removePaper/:id', async (req, res) => {
     const paperId = req.params.id;
-    const sql = 'DELETE FROM papers WHERE id = ?';
-    db.query(sql, [paperId], (err) => {
-        if (err) throw err;
-        res.json({ message: 'Paper removed successfully!' });
+    const { username, password } = req.body; // Expecting username and password in the request body
+
+    // Check if admin exists and verify password
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+
+        // Compare the provided password with the hashed password in the database
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        // If admin is valid, proceed to delete the paper
+        const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
+        db.query(sqlDeletePaper, [paperId], (err) => {
+            if (err) {
+                console.error('Error removing paper:', err);
+                return res.status(500).json({ message: 'Error removing paper' });
+            }
+            res.json({ message: 'Paper removed successfully!' });
+        });
     });
 });
 

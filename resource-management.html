@@ -131,10 +131,13 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+    // Function to fetch and display resources
     async function fetchResources() {
         try {
-            const booksResponse = await fetch('/admin/getBooks');
-            const papersResponse = await fetch('/admin/getPapers');
+            const [booksResponse, papersResponse] = await Promise.all([
+                fetch('/admin/getBooks'),
+                fetch('/admin/getPapers')
+            ]);
             const books = await booksResponse.json();
             const papers = await papersResponse.json();
 
@@ -142,96 +145,143 @@
             const papersList = document.getElementById('papersList');
 
             // Populate books list
-            booksList.innerHTML = '';
-            books.forEach(book => {
-                booksList.innerHTML += `
-                    <li class="list-group-item">
-                        ${book.bookTitle} 
-                        <button class="btn btn-danger btn-sm float-right" onclick="removeResource('book', ${book.id})">Remove</button>
-                    </li>`;
-            });
+            booksList.innerHTML = books.map(book => `
+                <li class="list-group-item">
+                    ${book.bookTitle} 
+                    <button class="btn btn-danger btn-sm float-right" onclick="removeBook(${book.id})">Remove</button>
+                </li>
+            `).join('');
 
             // Populate papers list
-            papersList.innerHTML = '';
-            papers.forEach(paper => {
-                papersList.innerHTML += `
-                    <li class="list-group-item">
-                        ${paper.paperTitle} 
-                        <button class="btn btn-danger btn-sm float-right" onclick="removeResource('paper', ${paper.id})">Remove</button>
-                    </li>`;
-            });
+            papersList.innerHTML = papers.map(paper => `
+                <li class="list-group-item">
+                    ${paper.paperTitle} 
+                    <button class="btn btn-danger btn-sm float-right" onclick="removePaper(${paper.id})">Remove</button>
+                </li>
+            `).join('');
         } catch (error) {
             console.error('Error fetching resources:', error);
         }
     }
 
     // Add Book Form Submission
-    document.getElementById('addBookForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        try {
-            const response = await fetch('/admin/addBook', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to upload book');
-            }
-            
-            alert('Book added successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error adding book:', error);
-            alert('Error adding book');
-        }
-    });
-    
-    // Add Paper Form Submission
-    document.getElementById('addPaperForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        try {
-            const response = await fetch('/admin/addPaper', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to upload paper');
-            }
-            
-            alert('Paper added successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error adding paper:', error);
-            alert('Error adding paper');
-        }
-    });
+document.getElementById('addBookForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
 
-    // Remove Resource Functionality
-    async function removeResource(type, id) {
+    // Prompt for admin credentials
+    const username = prompt("Enter your username:");
+    const password = prompt("Enter your password:");
+
+    // Append admin credentials to the form data
+    formData.append('username', username);
+    formData.append('password', password);
+
+    try {
+        const response = await fetch('/admin/addBook', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload book');
+        }
+
+        alert('Book added successfully!');
+        fetchResources(); // Refresh the list
+    } catch (error) {
+        console.error('Error adding book:', error);
+        alert('Error adding book: ' + error.message);
+    }
+});
+
+// Add Paper Form Submission
+document.getElementById('addPaperForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    // Prompt for admin credentials
+    const username = prompt("Enter your username:");
+    const password = prompt("Enter your password:");
+
+    // Append admin credentials to the form data
+    formData.append('username', username);
+    formData.append('password', password);
+
+    try {
+        const response = await fetch('/admin/addPaper', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload paper');
+        }
+
+        alert('Paper added successfully!');
+        fetchResources(); // Refresh the list
+    } catch (error) {
+        console.error('Error adding paper:', error);
+        alert('Error adding paper: ' + error.message);
+    }
+});
+
+
+    // Function to remove a book
+    async function removeBook(id) {
+        const username = prompt("Enter your username:");
+        const password = prompt("Enter your password:");
+
         try {
-            const response = await fetch(`/admin/remove${type.charAt(0).toUpperCase() + type.slice(1)}/${id}`, {
-                method: 'DELETE'
+            const response = await fetch(`/admin/removeBook/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
             });
-            
+
             if (!response.ok) {
-                throw new Error('Failed to remove resource');
+                throw new Error('Failed to remove book');
             }
-            
-            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} removed successfully!`);
+
+            alert('Book removed successfully!');
             fetchResources(); // Refresh the list
         } catch (error) {
-            console.error('Error removing resource:', error);
-            alert('Error removing resource');
+            console.error('Error removing book:', error);
+            alert('Error removing book');
         }
     }
 
+    // Function to remove a paper
+    async function removePaper(id) {
+        const username = prompt("Enter your username:");
+        const password = prompt("Enter your password:");
+
+        try {
+            const response = await fetch(`/admin/removePaper/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to remove paper');
+            }
+
+            alert('Paper removed successfully!');
+            fetchResources(); // Refresh the list
+        } catch (error) {
+            console.error('Error removing paper:', error);
+            alert('Error removing paper');
+        }
+    }
+
+    // Logout function
     function logout() {
         window.location.href = '/adminLogout'; // Redirect to admin logout route
     }
@@ -239,6 +289,7 @@
     // Fetch resources on page load
     window.onload = fetchResources;
 </script>
+
 
 </body>
 </html>
