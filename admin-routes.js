@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const router = express.Router();
 const db = require('./mysql'); // Your MySQL configuration file
+const bcrypt = require('bcryptjs');
 
 // Serve static files (HTML, CSS, JS)
 router.use(express.static(path.join(__dirname))); // Serving static files
@@ -104,6 +105,51 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
     });
 });
 
+// Route to get all users
+router.get('/getUsers', (req, res) => {
+    const sql = 'SELECT id, fullname, username, email, phone_number, created_at FROM users';
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ message: 'Error fetching users' });
+        }
+        res.json(results);
+    });
+});
+
+// Route to remove a user
+router.delete('/removeUser/:id', async (req, res) => {
+    const userId = req.params.id;
+    const { username, password } = req.body; // Expecting username and password in the request body
+
+    // Check if admin exists and verify password
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+
+        // Compare the provided password with the hashed password in the database
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        // If admin is valid, proceed to delete the user
+        const sqlDeleteUser = 'DELETE FROM users WHERE id = ?';
+        db.query(sqlDeleteUser, [userId], (err) => {
+            if (err) {
+                console.error('Error removing user:', err);
+                return res.status(500).json({ message: 'Error removing user' });
+            }
+            res.json({ message: 'User removed successfully!' });
+        });
+    });
+});
+
 // Route to remove a book
 router.delete('/removeBook/:id', (req, res) => {
     const bookId = req.params.id;
@@ -123,5 +169,6 @@ router.delete('/removePaper/:id', (req, res) => {
         res.json({ message: 'Paper removed successfully!' });
     });
 });
+
 
 module.exports = router;

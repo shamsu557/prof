@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<style>
+    body { padding-top: 70px; }
+    footer {
+        background: #333;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+    }
+    .circular-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .navbar-nav .nav-link {
+        color: white !important;
+    }
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar-brand {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>
+<body>
+   <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <img src="educap.jfif" alt="Education Cap" class="circular-img">
+        <span class="navbar-brand text">Users Management</span>
+        <ul class="navbar-nav ml-auto d-flex align-items-center">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                    <img src="prof.jfif" alt="Professor" class="circular-img">
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="admin-dashboard.html">Home</a>
+                    <a class="dropdown-item" href="overview.html">Reports</a>
+                    <a class="dropdown-item" href="resource-management.html">Resource Management</a>
+                    <a class="dropdown-item" href="users-management.html">User Management</a>
+                    <button class="btn btn-danger logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>User Management</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userList"></tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Professor Name - Profession, University - <a href="https://facebook.com" class="text-white">Facebook</a>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/admin/getUsers');
+                const users = await response.json();
+    
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+    
+                users.forEach(user => {
+                    userList.innerHTML += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.fullname}</td>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${user.phone_number}</td>
+                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="confirmRemoveUser(${user.id}, '${user.username}')">Remove</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+    
+        async function confirmRemoveUser(userId, username) {
+            const adminUsername = prompt('Enter your admin username:');
+            const password = prompt('Enter your admin password to confirm removal:');
+            
+            if (adminUsername && password) {
+                const isConfirmed = confirm(`Are you sure you want to remove user: ${username}?`);
+                if (isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/removeUser/${userId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ username: adminUsername, password: password })
+                        });
+    
+                        if (!response.ok) {
+                            throw new Error('Failed to remove user');
+                        }
+    
+                        alert('User removed successfully!');
+                        fetchUsers(); // Refresh the user list
+                    } catch (error) {
+                        console.error('Error removing user:', error);
+                        alert('Error removing user. Please check your credentials or try again.');
+                    }
+                }
+            }
+        }
+    
+        window.onload = fetchUsers; // Fetch users on page load
+    </script>
+    
+</body>
+</html>
