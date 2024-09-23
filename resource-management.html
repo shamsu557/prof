@@ -39,6 +39,9 @@
         .form-container {
             margin-top: 20px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -59,53 +62,63 @@
                 <a class="dropdown-item" href="resource-management.html">Resource Management</a>
                 <a class="dropdown-item" href="users-management.html">User Management</a>
                 <button class="btn btn-danger logout-btn" onclick="logout()">Logout</button>
-           </a>
             </div>
         </li>
     </ul>
 </nav><br><br>
 
-<!-- Resource Management Forms Section -->
+<!-- Resource Management Section -->
 <div class="container form-container">
     <h2 class="text-center">Resource Management</h2>
     
-    <!-- Form to Add Book -->
-    <h3>Add Book</h3>
-    <form id="addBookForm" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="bookTitle">Book Title</label>
-            <input type="text" class="form-control" id="bookTitle" name="bookTitle" required>
-        </div>
-        <div class="form-group">
-            <label for="bookFile">Upload Book File (PDF)</label>
-            <input type="file" class="form-control-file" id="bookFile" name="bookFile" accept=".pdf" required>
-        </div>
-        <div class="form-group">
-            <label for="bookImage">Upload Book Image</label>
-            <input type="file" class="form-control-file" id="bookImage" name="bookImage" accept="image/*" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Book</button>
-    </form>
-    
-    <hr>
-    
-    <!-- Form to Add Paper -->
-    <h3>Add Paper</h3>
-    <form id="addPaperForm" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="paperTitle">Paper Title</label>
-            <input type="text" class="form-control" id="paperTitle" name="paperTitle" required>
-        </div>
-        <div class="form-group">
-            <label for="paperFile">Upload Paper File (PDF)</label>
-            <input type="file" class="form-control-file" id="paperFile" name="paperFile" accept=".pdf" required>
-        </div>
-        <div class="form-group">
-            <label for="paperImage">Upload Paper Image</label>
-            <input type="file" class="form-control-file" id="paperImage" name="paperImage" accept="image/*" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Paper</button>
-    </form>
+    <!-- Add Resource Selection -->
+    <div id="addResourceSection">
+        <h3>Select Resource Type</h3>
+        <button class="btn btn-primary" id="selectAddBook">Add Book</button>
+        <button class="btn btn-secondary" id="selectAddPaper">Add Paper</button>
+    </div>
+
+    <!-- Form to Add Book (Initially Hidden) -->
+    <div id="addBookSection" class="hidden">
+        <h3>Add Book</h3>
+        <form id="addBookForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="bookTitle">Book Title</label>
+                <input type="text" class="form-control" id="bookTitle" name="bookTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="bookFile">Upload Book File (PDF)</label>
+                <input type="file" class="form-control-file" id="bookFile" name="bookFile" accept=".pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="bookImage">Upload Book Image</label>
+                <input type="file" class="form-control-file" id="bookImage" name="bookImage" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+        <button class="btn btn-secondary mt-3" id="backToResource">Back</button>
+    </div>
+
+    <!-- Form to Add Paper (Initially Hidden) -->
+    <div id="addPaperSection" class="hidden">
+        <h3>Add Paper</h3>
+        <form id="addPaperForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="paperTitle">Paper Title</label>
+                <input type="text" class="form-control" id="paperTitle" name="paperTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="paperFile">Upload Paper File (PDF)</label>
+                <input type="file" class="form-control-file" id="paperFile" name="paperFile" accept=".pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="paperImage">Upload Paper Image</label>
+                <input type="file" class="form-control-file" id="paperImage" name="paperImage" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Paper</button>
+        </form>
+        <button class="btn btn-secondary mt-3" id="backToResourceFromPaper">Back</button>
+    </div>
 
     <hr>
 
@@ -131,7 +144,29 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    // Function to fetch and display resources
+    // Function to show the "Add Resource" options
+    function showResourceOptions() {
+        document.getElementById('addResourceSection').classList.remove('hidden');
+        document.getElementById('addBookSection').classList.add('hidden');
+        document.getElementById('addPaperSection').classList.add('hidden');
+    }
+
+    // Event listeners for showing add forms
+    document.getElementById('selectAddBook').addEventListener('click', function() {
+        document.getElementById('addResourceSection').classList.add('hidden');
+        document.getElementById('addBookSection').classList.remove('hidden');
+    });
+
+    document.getElementById('selectAddPaper').addEventListener('click', function() {
+        document.getElementById('addResourceSection').classList.add('hidden');
+        document.getElementById('addPaperSection').classList.remove('hidden');
+    });
+
+    // Back to Add Resource selection
+    document.getElementById('backToResource').addEventListener('click', showResourceOptions);
+    document.getElementById('backToResourceFromPaper').addEventListener('click', showResourceOptions);
+
+    // Fetch and display existing resources on page load
     async function fetchResources() {
         try {
             const [booksResponse, papersResponse] = await Promise.all([
@@ -163,9 +198,8 @@
             console.error('Error fetching resources:', error);
         }
     }
-
     // Add Book Form Submission
-document.getElementById('addBookForm').addEventListener('submit', async function(e) {
+    document.getElementById('addBookForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
 
@@ -228,68 +262,48 @@ document.getElementById('addPaperForm').addEventListener('submit', async functio
     }
 });
 
-
-    // Function to remove a book
-    async function removeBook(id) {
-        const username = prompt("Enter your username:");
-        const password = prompt("Enter your password:");
-
-        try {
-            const response = await fetch(`/admin/removeBook/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to remove book');
+    // Remove book
+    async function removeBook(bookId) {
+        if (confirm('Are you sure you want to remove this book?')) {
+            try {
+                const response = await fetch(`/admin/removeBook/${bookId}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error('Failed to remove book');
+                }
+                alert('Book removed successfully!');
+                fetchResources(); // Refresh the list
+            } catch (error) {
+                alert('Error removing book');
             }
-
-            alert('Book removed successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error removing book:', error);
-            alert('Error removing book');
         }
     }
 
-    // Function to remove a paper
-    async function removePaper(id) {
-        const username = prompt("Enter your username:");
-        const password = prompt("Enter your password:");
-
-        try {
-            const response = await fetch(`/admin/removePaper/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to remove paper');
+    // Remove paper
+    async function removePaper(paperId) {
+        if (confirm('Are you sure you want to remove this paper?')) {
+            try {
+                const response = await fetch(`/admin/removePaper/${paperId}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error('Failed to remove paper');
+                }
+                alert('Paper removed successfully!');
+                fetchResources(); // Refresh the list
+            } catch (error) {
+                alert('Error removing paper');
             }
-
-            alert('Paper removed successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error removing paper:', error);
-            alert('Error removing paper');
         }
-    }
-
-    // Logout function
-    function logout() {
-        window.location.href = '/adminLogout'; // Redirect to admin logout route
     }
 
     // Fetch resources on page load
-    window.onload = fetchResources;
-</script>
+    fetchResources();
 
+    // Admin logout functionality
+    function logout() {
+        fetch('/adminLogout', { method: 'POST' })
+            .then(() => window.location.href = '/admin-login.html')
+            .catch(err => console.error('Logout failed', err));
+    }
+</script>
 
 </body>
 </html>
