@@ -50,10 +50,12 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-// Apply the middleware to your admin dashboard route
-app.get('/admin-dashboard.html', isAuthenticated, (req, res) => {
-  res.sendFile(__dirname + '/admin-dashboard.html');
+// report page
+app.get('/overview', (req, res) => {
+  res.sendFile(path.join(__dirname,  'overview.html'));
 });
+
+
 
 // Home page (e.g., books/papers display)
 app.get('/', (req, res) => {
@@ -281,32 +283,56 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Protected resources page
-app.get('/resources.html', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'resources.html'));
-});
-// Protected admin-dashboard page
+// Middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session.user) {
+    return next(); // User is authenticated, proceed to the next route
+  }
+  // Redirect to appropriate login page
+  if (req.path === '/admin-dashboard.html') {
+    res.redirect('/adminLogin');
+  } else if (req.path === '/resources.html') {
+    res.redirect('/login');
+  } else {
+    res.redirect('/login');
+  }
+}
+
+// Middleware to check if the user is authenticated and determine user type
+function isAuthenticated(req, res, next) {
+  if (req.session.user) {
+    return next(); // Continue if authenticated
+  }
+
+  // If not authenticated, check if the user is trying to access admin or resources page
+  if (req.path === '/admin-dashboard.html') {
+    res.redirect('/adminLogin'); // Redirect to admin login
+  } else if (req.path === '/resources.html') {
+    res.redirect('/login'); // Redirect to regular user login
+  } else {
+    res.redirect('/login'); // Default to user login
+  }
+}
+
+// Admin Dashboard Route (protected for admin users)
 app.get('/admin-dashboard.html', isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
 });
 
-// Auth check route (for AJAX calls)
+// Resources Route (protected for regular users)
+app.get('/resources.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'resources.html'));
+});
+
+// Single auth-check route for both admin-dashboard.html and resources.html
 app.get('/auth-check', (req, res) => {
   if (req.session.user) {
-    res.json({ authenticated: true });
+    // Include userType to differentiate between admin and regular users
+    res.json({ authenticated: true, userType: req.session.userType });
   } else {
     res.json({ authenticated: false });
   }
 });
-app.get('/admin-auth-check', (req, res) => {
-  if (req.session.admin) {
-      res.json({ authenticated: true });
-  } else {
-      res.json({ authenticated: false });
-  }
-});
-
-
 
 // Forgot password endpoint
 app.post('/forgot-password', (req, res) => {
