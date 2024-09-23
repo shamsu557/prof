@@ -145,61 +145,62 @@
 
 <script>
     // Function to show the "Add Resource" options
-    function showResourceOptions() {
-        document.getElementById('addResourceSection').classList.remove('hidden');
-        document.getElementById('addBookSection').classList.add('hidden');
-        document.getElementById('addPaperSection').classList.add('hidden');
+function showResourceOptions() {
+    document.getElementById('addResourceSection').classList.remove('hidden');
+    document.getElementById('addBookSection').classList.add('hidden');
+    document.getElementById('addPaperSection').classList.add('hidden');
+}
+
+// Event listeners for showing add forms
+document.getElementById('selectAddBook').addEventListener('click', function() {
+    document.getElementById('addResourceSection').classList.add('hidden');
+    document.getElementById('addBookSection').classList.remove('hidden');
+});
+
+document.getElementById('selectAddPaper').addEventListener('click', function() {
+    document.getElementById('addResourceSection').classList.add('hidden');
+    document.getElementById('addPaperSection').classList.remove('hidden');
+});
+
+// Back to Add Resource selection
+document.getElementById('backToResource').addEventListener('click', showResourceOptions);
+document.getElementById('backToResourceFromPaper').addEventListener('click', showResourceOptions);
+
+// Fetch and display existing resources on page load
+async function fetchResources() {
+    try {
+        const [booksResponse, papersResponse] = await Promise.all([
+            fetch('/admin/getBooks'),
+            fetch('/admin/getPapers')
+        ]);
+        const books = await booksResponse.json();
+        const papers = await papersResponse.json();
+
+        const booksList = document.getElementById('booksList');
+        const papersList = document.getElementById('papersList');
+
+        // Populate books list
+        booksList.innerHTML = books.map(book => `
+            <li class="list-group-item">
+                ${book.bookTitle} 
+                <button class="btn btn-danger btn-sm float-right" onclick="confirmRemoveBook(${book.id}, '${book.bookTitle}')">Remove</button>
+            </li>
+        `).join('');
+
+        // Populate papers list
+        papersList.innerHTML = papers.map(paper => `
+            <li class="list-group-item">
+                ${paper.paperTitle} 
+                <button class="btn btn-danger btn-sm float-right" onclick="confirmRemovePaper(${paper.id}, '${paper.paperTitle}')">Remove</button>
+            </li>
+        `).join('');
+    } catch (error) {
+        console.error('Error fetching resources:', error);
     }
+}
 
-    // Event listeners for showing add forms
-    document.getElementById('selectAddBook').addEventListener('click', function() {
-        document.getElementById('addResourceSection').classList.add('hidden');
-        document.getElementById('addBookSection').classList.remove('hidden');
-    });
-
-    document.getElementById('selectAddPaper').addEventListener('click', function() {
-        document.getElementById('addResourceSection').classList.add('hidden');
-        document.getElementById('addPaperSection').classList.remove('hidden');
-    });
-
-    // Back to Add Resource selection
-    document.getElementById('backToResource').addEventListener('click', showResourceOptions);
-    document.getElementById('backToResourceFromPaper').addEventListener('click', showResourceOptions);
-
-    // Fetch and display existing resources on page load
-    async function fetchResources() {
-        try {
-            const [booksResponse, papersResponse] = await Promise.all([
-                fetch('/admin/getBooks'),
-                fetch('/admin/getPapers')
-            ]);
-            const books = await booksResponse.json();
-            const papers = await papersResponse.json();
-
-            const booksList = document.getElementById('booksList');
-            const papersList = document.getElementById('papersList');
-
-            // Populate books list
-            booksList.innerHTML = books.map(book => `
-                <li class="list-group-item">
-                    ${book.bookTitle} 
-                    <button class="btn btn-danger btn-sm float-right" onclick="removeBook(${book.id})">Remove</button>
-                </li>
-            `).join('');
-
-            // Populate papers list
-            papersList.innerHTML = papers.map(paper => `
-                <li class="list-group-item">
-                    ${paper.paperTitle} 
-                    <button class="btn btn-danger btn-sm float-right" onclick="removePaper(${paper.id})">Remove</button>
-                </li>
-            `).join('');
-        } catch (error) {
-            console.error('Error fetching resources:', error);
-        }
-    }
-    // Add Book Form Submission
-    document.getElementById('addBookForm').addEventListener('submit', async function(e) {
+// Add Book Form Submission
+document.getElementById('addBookForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
 
@@ -262,47 +263,79 @@ document.getElementById('addPaperForm').addEventListener('submit', async functio
     }
 });
 
-    // Remove book
-    async function removeBook(bookId) {
-        if (confirm('Are you sure you want to remove this book?')) {
+// Confirm and remove book
+async function confirmRemoveBook(bookId, bookTitle) {
+    const adminUsername = prompt('Enter your admin username:');
+    const password = prompt('Enter your admin password to confirm removal:');
+    
+    if (adminUsername && password) {
+        const isConfirmed = confirm(`Are you sure you want to remove book: ${bookTitle}?`);
+        if (isConfirmed) {
             try {
-                const response = await fetch(`/admin/removeBook/${bookId}`, { method: 'DELETE' });
+                const response = await fetch(`/admin/removeBook/${bookId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: adminUsername, password: password })
+                });
+
                 if (!response.ok) {
-                    throw new Error('Failed to remove book');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to remove book');
                 }
+
                 alert('Book removed successfully!');
                 fetchResources(); // Refresh the list
             } catch (error) {
-                alert('Error removing book');
+                console.error('Error removing book:', error);
+                alert('Error removing book: ' + error.message);
             }
         }
     }
+}
 
-    // Remove paper
-    async function removePaper(paperId) {
-        if (confirm('Are you sure you want to remove this paper?')) {
+// Confirm and remove paper
+async function confirmRemovePaper(paperId, paperTitle) {
+    const adminUsername = prompt('Enter your admin username:');
+    const password = prompt('Enter your admin password to confirm removal:');
+    
+    if (adminUsername && password) {
+        const isConfirmed = confirm(`Are you sure you want to remove paper: ${paperTitle}?`);
+        if (isConfirmed) {
             try {
-                const response = await fetch(`/admin/removePaper/${paperId}`, { method: 'DELETE' });
+                const response = await fetch(`/admin/removePaper/${paperId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: adminUsername, password: password })
+                });
+
                 if (!response.ok) {
-                    throw new Error('Failed to remove paper');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to remove paper');
                 }
+
                 alert('Paper removed successfully!');
                 fetchResources(); // Refresh the list
             } catch (error) {
-                alert('Error removing paper');
+                console.error('Error removing paper:', error);
+                alert('Error removing paper: ' + error.message);
             }
         }
     }
+}
 
-    // Fetch resources on page load
-    fetchResources();
+// Fetch resources on page load
+fetchResources();
 
-    // Admin logout functionality
-    function logout() {
-        fetch('/adminLogout', { method: 'POST' })
-            .then(() => window.location.href = '/admin-login.html')
-            .catch(err => console.error('Logout failed', err));
-    }
+// Admin logout functionality
+function logout() {
+    fetch('/adminLogout', { method: 'POST' })
+        .then(() => window.location.href = '/admin-login.html')
+        .catch(err => console.error('Logout failed', err));
+}
 </script>
 
 </body>

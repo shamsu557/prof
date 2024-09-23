@@ -226,7 +226,7 @@ router.delete('/removeBook/:id', async (req, res) => {
         }
 
         // If admin is valid, proceed to delete the book
-        const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
+        const sqlDeleteBook = 'DELETE FROM resources WHERE id = ? AND type = "book"'; // Ensure you're deleting from the right table
         db.query(sqlDeleteBook, [bookId], (err) => {
             if (err) {
                 console.error('Error removing book:', err);
