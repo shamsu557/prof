@@ -123,6 +123,23 @@ app.post('/signup', (req, res) => {
   });
 });
 
+// Admin creation login route (only allows Admin001 with 'default' password)
+app.post('/admin-creation-login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Hardcoded credentials
+  const validUsername = 'Admin001';
+  const validPassword = 'default';
+
+  // Check the credentials
+  if (username === validUsername && password === validPassword) {
+    // Credentials are correct, allow access to the admin signup page
+    return res.json({ success: true, message: 'Login successful! You can now create a new admin.' });
+  } else {
+    // Invalid credentials
+    return res.json({ success: false, message: 'Invalid credentials! You do not have permission to create admins.' });
+  }
+});
 
 // Admin Signup page
 app.get('/admin-signup', (req, res) => {

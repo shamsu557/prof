@@ -23,7 +23,6 @@
       width: 100%;
       text-align: center;
       line-height: 50px;
-      animation: marquee 25s linear infinite;
       font-weight: bold;
     }
     .fixed-image {
@@ -31,10 +30,6 @@
       height: 50px;
       object-fit: cover;
       border-radius: 50%; /* Circular */
-    }
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
     }
 
     body {
@@ -81,6 +76,8 @@
     .footer i {
       font-size: 24px;
     }
+    
+   
   </style>
 </head>
 <body>
@@ -92,18 +89,38 @@
     </div>
     <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
   </div>  
-  <div class="container">
-    <form id="signupForm" action="/admin-signup" method="POST" class="border p-4 shadow-sm rounded">
+  
+  <!-- Admin Login Form -->
+  <div class="container" id="loginContainer">
+    <form id="loginForm" class="border p-4 shadow-sm rounded">
       <div class="card-header text-center">
-        Admin Signup
+        Admin Login
       </div>
       <div class="card-body">
         <div class="form-group">
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" class="form-control" id="fullName" name="fullName" required>
-          </div>
+          <label for="loginUsername">Username</label>
+          <input type="text" class="form-control" id="loginUsername" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" class="form-control" id="loginPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </div>
+    </form>
+  </div>
 
+  <!-- Admin Signup Form -->
+  <div class="container" id="signupContainer">
+    <form id="signupForm" action="/admin-signup" method="POST" class="border p-4 shadow-sm rounded">
+      <div class="card-header text-center">
+        Admin Creation
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" class="form-control" id="fullName" name="fullName" required>
+        </div>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
@@ -126,13 +143,14 @@
             </div>
           </div>
           <div class="col-md-6">
-          <label for="phone">Phone Number</label>
-          <input type="tel" class="form-control" id="phone" name="phone" required>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" class="form-control" id="phone" name="phone" required>
+            </div>
+          </div>
         </div>
-        </div>
-        <div class="form-group">
         <button type="submit" class="btn btn-primary btn-block">Create Admin</button>
-      </div></div></div>
+      </div>
     </form>
   </div>
 
@@ -157,35 +175,68 @@
   </div>
 
   <script>
-   document.getElementById('signupForm').addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent default form submission
+    // Initially hide the signup form
+    const signupContainer = document.getElementById('signupContainer');
+    signupContainer.style.display = 'none';
 
-  const formData = new FormData(this);
-  const data = Object.fromEntries(formData.entries());
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
-  // Send data to the server
-  fetch('/admin-signup', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  .then(response => response.json())
-  .then(result => {
-    alert(result.message); // Display the response message
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
 
-    if (result.success) {
-      this.reset(); // Reset the form if signup is successful
+        // Send login credentials to the backend
+        fetch('/admin-creation-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide the login form and show the signup form
+                document.getElementById('loginContainer').style.display = 'none';
+                signupContainer.style.display = 'block';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
 
-      if (result.redirectUrl) {
-        window.location.href = result.redirectUrl; // Redirect if redirectUrl is provided
-      }
-    }
-  })
-  .catch(error => console.error('Error:', error));
-});
+    // Handle signup form submission
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-  </script>
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        // Send data to the server
+        fetch('/admin-signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+            alert(result.message); // Display the response message
+
+            if (result.success) {
+                this.reset(); // Reset the form if signup is successful
+
+                if (result.redirectUrl) {
+                    window.location.href = result.redirectUrl; // Redirect if redirectUrl is provided
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
 </body>
 </html>
