@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Professor Sign Up</title>
+  <title>user Sign Up</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
@@ -50,28 +50,65 @@
     .form-control {
       margin-bottom: 15px;
     }
-    .footer {
-      background: #f8f9fa;
-      color: #343a40;
-      padding: 10px;
-      text-align: center;
-    }
-    .footer .row {
-      margin: 0;
-    }
-    .footer .col {
-      padding: 0;
-    }
-    .footer p {
-      margin: 0;
-    }
-    .footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .footer i {
-      font-size: 24px;
-    }
+    .form-control { 
+  margin-bottom: 15px;
+}
+
+.footer {
+  background: #f8f9fa;
+  color: #343a40;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  flex-direction: column;  /* Stack items vertically */
+}
+
+.footer .row {
+  width: 100%; /* Ensure row takes up the full width */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically if necessary */
+  margin: 0;
+}
+
+.footer .col {
+  padding: 0;
+  text-align: center; /* Ensure content in columns is centered */
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer i {
+  font-size: 24px;
+}
+
+    #myBtn {
+  display: none;
+  position: fixed;
+  bottom: 15px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  background-color: rgb(210, 210, 233);
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+#myBtn:hover {
+  background-color: #555;
+}
   </style>
 </head>
 <body>
@@ -80,54 +117,57 @@
     <div class="marquee-text">
       Welcome to the Sign-Up for our Page. Please provide your details to register as a new member of our academic platform.
     </div>
-    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+    <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
   </div>
   
   <div class="container">
     <form id="signup-form" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Sign Up</h2>
-      <div class="form-group">
-        <input type="text" name="fullname" class="form-control" placeholder="Full Name" required>
-      </div>
+      <input type="text" name="fullname" class="form-control" placeholder="Full Name" required>
       <div class="form-row">
-        <div class="form-group col-md-6">
-          <input type="text" name="username" class="form-control" placeholder="Username" required>
-        </div>
-        <div class="form-group col-md-6">
-          <input type="password" name="password" class="form-control" placeholder="password" required>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <input type="email" name="email" class="form-control" placeholder="Email" required>
-        </div>
         <div class="form-group col-md-6">
           <input type="tel" name="phone_number" class="form-control" placeholder="Phone Number" required>
         </div>
+        <div class="form-group col-md-6">
+          <input type="email" name="email" class="form-control" placeholder="Email" required>
+        </div>
       </div>
-     
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </div>
+        <div class="form-group col-md-6">
+          <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" required>
+        </div>
+      </div>
+      <div id="message" class="alert alert-danger" style="display:none;"></div>
       <button type="submit" class="btn btn-success btn-block">Sign Up</button>
     </form>
+  </div><br><br>
+<!-- Footer -->
+<div class="footer">
+  <div class="row">
+      <div class="col-md-3">
+          <p>Professor Ibeawuchi Amagwu Francis</p>
+          <p>Email: Frank.Amagwu@gmail.com</p>
+          <p>Phone: +234 803 328 4372</p>
+      </div>
+      <div class="col-md-3">
+          <p>Micro and Development Finance</p>
+          <p>National Open University of Nigeria</p>
+          <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+              <i class="fab fa-facebook"></i> Facebook
+          </a>
+      </div>
+      <div class="col-md-3 text-center">
+          <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+          <p>All rights reserved.</p>
+      </div>
   </div>
-
-  <div class="footer">
-    <div class="row">
-      <div class="col-md-3">
-        <p>Professor Shamsu Sabo</p>
-      </div>
-      <div class="col-md-3">
-        <p>Professor of Computer Science</p>
-      </div>
-      <div class="col-md-3">
-        <p>University of Excellence</p>
-      </div>
-      <div class="col-md-3">
-        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-          <i class="fab fa-facebook"></i>
-        </a>
-      </div>
-    </div>
-  </div>
+</div>
+<!-- Back to top button -->
+<button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+  
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -136,6 +176,17 @@
   <script>
     document.getElementById('signup-form').addEventListener('submit', function(event) {
       event.preventDefault(); 
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        document.getElementById('message').textContent = 'Passwords do not match.';
+        document.getElementById('message').style.display = 'block';
+        return; 
+      } else {
+        document.getElementById('message').style.display = 'none';
+      }
 
       const formData = new FormData(event.target);
 
@@ -157,6 +208,21 @@
         alert('An error occurred. Please try again.');
       });
     });
+    // Back to top button functionality
+    window.onscroll = function() {scrollFunction()};
+  
+  function scrollFunction() {
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+          document.getElementById("myBtn").style.display = "block";
+      } else {
+          document.getElementById("myBtn").style.display = "none";
+      }
+  }
+
+  function topFunction() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+  }
   </script>
 </body>
 </html>

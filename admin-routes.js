@@ -161,7 +161,7 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
 
 // Route to get all users
 router.get('/getUsers', (req, res) => {
-    const sql = 'SELECT id, fullname, username, email, phone_number, created_at FROM users';
+    const sql = 'SELECT id, fullname, email, created_at FROM users';
     db.query(sql, (err, results) => {
         if (err) {
             console.error('Error fetching users:', err);

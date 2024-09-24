@@ -146,201 +146,196 @@
     <div class="marquee-text">
         Explore our collection of books and papers! Click to download or read resources instantly.
     </div>
-    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
-</div>  
-
-<header class="bg-light py-3">
+    <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
+  </div>  
+<br>
+  <header class="bg-light py-3">
     <div class="container">
-        <h1 class="text-center">Available Resources</h1>
+        <h1 class="text-center">Resources</h1>
     </div>
-</header>
+  </header>
+<body>
+    <main class="container my-4">
+        <!-- Search Section -->
+        <div class="search-container">
+        <div class="form-group col-md-6">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+        </div></div>
 
-<main class="container my-4">
-    <!-- Search Section -->
-    <div class="search-container">
-        <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
-    </div>
+        <div class="container mt-4">
+            <h2 class="text-center">Books</h2>
+            <div id="book-list" class="row"></div> <!-- Books will be dynamically populated here -->
 
-    <h2>Books</h2>
-    <div id="booksContainer" class="row">
-        <!-- Book items -->
-        <div class="col-md-4 mb-4 book-item" data-title="Data Communication and Networking">
-            <div class="card">
-                <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
-                <div class="card-body">
-                    <h5 class="card-title">Data Communication and Networking</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('book1.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('book1.pdf', 'read')">Read Book</a>
-                </div>
+            <h2 class="text-center mt-4">Papers</h2>
+            <div id="papers-list" class="row"></div> <!-- Papers will be dynamically populated here -->
+        </div>
+        <br>
+        <div class="bg-light py-3">
+            <div class="container text-center">
+                <a href="/logout" class="btn btn-secondary">Logout</a>
             </div>
         </div>
-        <div class="col-md-4 mb-4 book-item" data-title="Advanced Embedded Systems">
-            <div class="card">
-                <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
-                <div class="card-body">
-                    <h5 class="card-title">Advanced Embedded Systems</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('book2.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('book2.pdf', 'read')">Read Book</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4 book-item" data-title="Introduction to IoT">
-            <div class="card">
-                <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
-                <div class="card-body">
-                    <h5 class="card-title">Introduction to IoT</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('book3.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('book3.pdf', 'read')">Read Book</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 
-    <h2>Papers</h2>
-    <div id="papersContainer" class="row">
-        <!-- Paper items -->
-        <div class="col-md-4 mb-4 paper-item" data-title="An Arduino-based Low-Cost Hardware for Temperature Control">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('paper1.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('paper1.pdf', 'read')">Read Paper</a>
-                </div>
+      <!-- Footer -->
+      <div class="footer">
+        <div class="row">
+            <div class="col-md-3">
+                <p>Professor Ibeawuchi Amagwu Francis</p>
+                <p>Email: Frank.Amagwu@gmail.com</p>
+                <p>Phone: +234 803 328 4372</p>
             </div>
-        </div>
-        <div class="col-md-4 mb-4 paper-item" data-title="Automatic Temperature Control System on Smart Poultry Farm Using PID Method">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('paper2.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('paper2.pdf', 'read')">Read Paper</a>
-                </div>
+            <div class="col-md-3">
+                <p>Micro and Development Finance</p>
+                <p>National Open University of Nigeria</p>
+                <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+                    <i class="fab fa-facebook"></i> Facebook
+                </a>
             </div>
-        </div>
-        <div class="col-md-4 mb-4 paper-item" data-title="Abubakar-Microcontroller Based Automatic Temperature">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
-                    <p class="card-text">Author Name or Additional Info</p>
-                    <a href="#" class="btn btn-primary" onclick="requestResource('paper3.pdf', 'download')">Download</a>
-                    <a href="#" class="btn btn-info" onclick="requestResource('paper3.pdf', 'read')">Read Paper</a>
-                </div>
+            <div class="col-md-3 text-center">
+                <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+                <p>All rights reserved.</p>
             </div>
         </div>
     </div>
-    <div class="bg-light py-3">
-        <div class="container text-center">
-            <a href="/logout" class="btn btn-secondary">Logout</a>
-        </div>
-    </div>
-</main>
-
- <!-- Footer -->
- <div class="footer">
-    <div class="row">
-      <div class="col-md-3">
-        <p>Professor Shamsu Sabo</p>
-      </div>
-      <div class="col-md-3">
-        <p>Professor of Computer Science</p>
-      </div>
-      <div class="col-md-3">
-        <p>University of Excellence</p>
-      </div>
-      <div class="col-md-3">
-        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-          <i class="fab fa-facebook"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-  <!-- Back to top button -->
-  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
-
+    
   
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script>
-    function requestResource(resource, action) {
-        fetch('/request-resource', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `resource=${encodeURIComponent(resource)}&action=${encodeURIComponent(action)}`
-        })
-        .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                console.error('Request failed');
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Fetch and display books
+        async function fetchBooks() {
+            try {
+                const response = await fetch('/api/books'); // Fetch books from your API endpoint
+                const books = await response.json();
+                const bookList = document.getElementById('book-list');
+                
+                books.forEach(book => {
+                    const bookCard = document.createElement('div');
+                    bookCard.className = 'col-md-4 resource-card book-item';
+                    bookCard.setAttribute('data-title', book.bookTitle.toLowerCase());
+                    bookCard.innerHTML = `
+                        <div class="card">
+                            <img src="${book.image}" alt="${book.bookTitle}" class="card-img-top resource-image">
+                            <div class="card-body">
+                                <h5 class="card-title">${book.bookTitle}</h5>
+                                <a href="/files/${book.file_name}" class="btn btn-primary" download>Download</a>
+                                <a href="/view/${book.file_name}" class="btn btn-secondary">Read</a>
+                            </div>
+                        </div>
+                    `;
+                    bookList.appendChild(bookCard);
+                });
+            } catch (error) {
+                console.error('Error fetching books:', error);
             }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+        }
 
-    function filterResources() {
-        const searchInput = document.getElementById('searchInput').value.toLowerCase();
-        const bookItems = document.querySelectorAll('.book-item');
-        const paperItems = document.querySelectorAll('.paper-item');
+        // Fetch and display papers
+        async function fetchPapers() {
+            try {
+                const response = await fetch('/api/papers'); // Fetch papers from your API endpoint
+                const papers = await response.json();
+                const paperList = document.getElementById('papers-list');
+                
+                papers.forEach(paper => {
+                    const paperCard = document.createElement('div');
+                    paperCard.className = 'col-md-4 resource-card paper-item';
+                    paperCard.setAttribute('data-title', paper.paperTitle.toLowerCase());
+                    paperCard.innerHTML = `
+                        <div class="card">
+                            <img src="${paper.image}" alt="${paper.paperTitle}" class="card-img-top resource-image">
+                            <div class="card-body">
+                                <h5 class="card-title">${paper.paperTitle}</h5>
+                                <a href="/files/${paper.file_name}" class="btn btn-primary" download>Download</a>
+                                <a href="/view/${paper.file_name}" class="btn btn-secondary">Read</a>
+                            </div>
+                        </div>
+                    `;
+                    paperList.appendChild(paperCard);
+                });
+            } catch (error) {
+                console.error('Error fetching papers:', error);
+            }
+        }
+         // Function to check authentication status
+  function checkAuth() {
+      fetch('/auth-check')
+      .then(response => response.json())
+      .then(data => {
+          if (!data.authenticated) {
+              // Redirect to admin login if not authenticated
+              window.location.href = '/login';
+          }
+      })
+      .catch(err => {
+          console.error('Error checking authentication:', err);
+      });
+  }
 
-        bookItems.forEach(item => {
-            const title = item.getAttribute('data-title').toLowerCase();
-            item.style.display = title.includes(searchInput) ? 'block' : 'none';
-        });
 
-        paperItems.forEach(item => {
-            const title = item.getAttribute('data-title').toLowerCase();
-            item.style.display = title.includes(searchInput) ? 'block' : 'none';
-        });
-    }
-     // Function to check authentication status
-     function checkAuth() {
-            fetch('/auth-check')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.authenticated) {
-                    // If not authenticated, redirect to login page
-                    window.location.href = '/login';
+  // Also check authentication status when navigating back/forward
+  window.onpageshow = function(event) {
+      if (event.persisted) {
+          checkAuth();
+      }
+  };
+  function logout() {
+  window.location.href = '/logout'; // Redirect to admin logout route
+}
+
+        // Filter resources based on search input
+        function filterResources() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const bookItems = document.querySelectorAll('.book-item');
+            const paperItems = document.querySelectorAll('.paper-item');
+
+            bookItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                if (title.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
                 }
-            })
-            .catch(err => {
-                console.error('Error checking authentication:', err);
+            });
+
+            paperItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                if (title.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
             });
         }
 
-        // Check authentication status on page load
-        window.onload = function() {
-            checkAuth();
-        };
+        // Back to top button functionality
+        window.onscroll = function() {scrollFunction()};
 
-        // Also check authentication status when navigating back/forward
-        window.onpageshow = function(event) {
-            if (event.persisted) {
-                checkAuth();
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("myBtn").style.display = "block";
+            } else {
+                document.getElementById("myBtn").style.display = "none";
             }
-        };
-    // Back to top function
-    window.onscroll = function() { scrollFunction(); };
-    function scrollFunction() {
-        var mybutton = document.getElementById("myBtn");
-        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-            mybutton.style.display = "block";
-        } else {
-            mybutton.style.display = "none";
         }
-    }
-    function topFunction() {
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-    }
-</script>
 
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+
+        // Fetch the resources after the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBooks();
+            fetchPapers();
+            checkAuth();
+        });
+    </script>
 </body>
 </html>

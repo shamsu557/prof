@@ -5,6 +5,7 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
+const fs = require('fs');
 
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
@@ -55,25 +56,6 @@ app.get('/overview', (req, res) => {
   res.sendFile(path.join(__dirname,  'overview.html'));
 });
 
-
-
-// Home page (e.g., books/papers display)
-app.get('/', (req, res) => {
-  db.query('SELECT * FROM books', (err, books) => {
-    if (err) {
-      console.error('Error fetching books:', err);
-      return res.status(500).send('Server error');
-    }
-    db.query('SELECT * FROM papers', (err, papers) => {
-      if (err) {
-        console.error('Error fetching papers:', err);
-        return res.status(500).send('Server error');
-      }
-      res.sendFile(path.join(__dirname, 'index.html'));
-    });
-  });
-});
-
 // Signup page
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup.html'));
@@ -81,10 +63,10 @@ app.get('/signup', (req, res) => {
 
 // Handle sign up
 app.post('/signup', (req, res) => {
-  const { fullname, username, email, phone_number, password } = req.body;
+  const { fullname, email, phone_number, password } = req.body;
 
   // First, check if the email or username already exists
-  db.query('SELECT email, username FROM users WHERE email = ? OR username = ?', [email, username], (err, results) => {
+  db.query('SELECT email FROM users WHERE email = ? ', [email], (err, results) => {
     if (err) {
       console.error('Error querying database for signup:', err);
       return res.status(500).json({ success: false, message: 'Server error' });
@@ -96,9 +78,6 @@ app.post('/signup', (req, res) => {
       if (existingUser.email === email) {
         return res.status(400).json({ success: false, message: 'Email already exists' });
       }
-      if (existingUser.username === username) {
-        return res.status(400).json({ success: false, message: 'Username already taken. Choose another username if you haven’t signed up before, or reset your password if you already have an account.' });
-      }
     }
 
     // If no user found, hash the password and insert the new user
@@ -109,8 +88,8 @@ app.post('/signup', (req, res) => {
       }
 
       db.query(
-        'INSERT INTO users (fullname, username, email, phone_number, password) VALUES (?, ?, ?, ?, ?)', 
-        [fullname, username, email, phone_number, hashedPassword], 
+        'INSERT INTO users (fullname, email, phone_number, password) VALUES (?, ?, ?, ?)', 
+        [fullname,email, phone_number, hashedPassword], 
         (err) => {
           if (err) {
             console.error('Error inserting user into database:', err);
@@ -122,6 +101,8 @@ app.post('/signup', (req, res) => {
     });
   });
 });
+
+
 
 // Admin creation login route (only allows Admin001 with 'default' password)
 app.post('/admin-creation-login', (req, res) => {
@@ -197,7 +178,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
 
-  db.query('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier], (err, results) => {
+  db.query('SELECT * FROM users WHERE email = ?', [identifier], (err, results) => {
     if (err) {
       console.error('Error querying database for login:', err);
       return res.status(500).send('Server error');
@@ -217,46 +198,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Handle resource request from resources.html
-app.post('/request-resource', (req, res) => {
-  const { resource, action } = req.body;
 
-  // Store the requested resource in session
-  req.session.resource = resource;
-
-  // Determine the correct type of response based on the action
-  if (action === 'read') {
-    res.redirect(`/read/${resource}`);
-  } else {
-    res.redirect(`/download/${resource}`);
-  }
-});
-
-// Handle download request
-app.get('/download/:resource', (req, res) => {
-  const resource = req.params.resource;
-
-  // Ensure the resource is valid before sending it
-  const validResources = ['book1.pdf', 'book2.pdf', 'book3.pdf', 'paper1.pdf', 'paper2.pdf', 'paper3.pdf'];
-  if (validResources.includes(resource)) {
-    res.download(path.join(__dirname, resource));
-  } else {
-    res.status(404).send('Resource not found');
-  }
-});
-
-// Handle read request
-app.get('/read/:resource', (req, res) => {
-  const resource = req.params.resource;
-
-  // Ensure the resource is valid before sending it
-  const validResources = ['book1.pdf', 'book2.pdf', 'book3.pdf', 'paper1.pdf', 'paper2.pdf', 'paper3.pdf'];
-  if (validResources.includes(resource)) {
-    res.sendFile(path.join(__dirname, resource));
-  } else {
-    res.status(404).send('Resource not found');
-  }
-});
 // Admin login page
 app.get('/adminLogin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-login.html'));
@@ -286,6 +228,55 @@ app.post('/adminLogin', (req, res) => {
   });
 });
 
+// API Endpoint to fetch books
+app.get('/api/books', (req, res) => {
+  const query = 'SELECT id, bookTitle, file_name, image FROM books';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching books:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// API Endpoint to fetch papers
+app.get('/api/papers', (req, res) => {
+  const query = 'SELECT id, paperTitle, file_name, image FROM papers';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching papers:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Serve book or paper files for reading
+app.get('/view/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
+  
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+    res.sendFile(filePath);
+  });
+});
+
+// Serve files for download
+app.get('/files/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
+  
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+    res.download(filePath);
+  });
+});
 
 
 // Logout route

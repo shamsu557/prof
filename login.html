@@ -7,83 +7,112 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <style>
-   .marquee-container {
-      background: #f8f9fa;
-      border-bottom: 2px solid #ddd;
-      overflow: hidden;
-      position: relative;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .marquee-text {
-      white-space: nowrap;
-      position: absolute;
-      width: 100%;
-      text-align: center;
-      line-height: 50px;
-      animation: marquee 25s linear infinite;
-      font-weight: bold;
-    }
-    /* Fixed circular images on each side */
-    .fixed-image {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 50%; /* Circular */
-    }
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
+    .marquee-container {
+       background: #f8f9fa;
+       border-bottom: 2px solid #ddd;
+       overflow: hidden;
+       position: relative;
+       height: 50px;
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+     }
+     .marquee-text {
+       white-space: nowrap;
+       position: absolute;
+       width: 100%;
+       text-align: center;
+       line-height: 50px;
+       animation: marquee 25s linear infinite;
+       font-weight: bold;
+     }
+     /* Fixed circular images on each side */
+     .fixed-image {
+       width: 50px;
+       height: 50px;
+       object-fit: cover;
+       border-radius: 50%; /* Circular */
+     }
+     @keyframes marquee {
+       0% { transform: translateX(100%); }
+       100% { transform: translateX(-100%); }
+     }
+ 
+     /* Flexbox to ensure footer sticks to the bottom */
+     body {
+       display: flex;
+       flex-direction: column;
+       min-height: 100vh;
+       margin: 0;
+     }
+ 
+     .container {
+       max-width: 400px;
+       margin-top: 70px;
+       flex: 1; /* Ensures that the container grows and takes up available space */
+     }
+ 
+     .form-control { 
+  margin-bottom: 15px;
+}
 
-    /* Flexbox to ensure footer sticks to the bottom */
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
-    }
+.footer {
+  background: #f8f9fa;
+  color: #343a40;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  flex-direction: column;  /* Stack items vertically */
+}
 
-    .container {
-      max-width: 400px;
-      margin-top: 70px;
-      flex: 1; /* Ensures that the container grows and takes up available space */
-    }
+.footer .row {
+  width: 100%; /* Ensure row takes up the full width */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically if necessary */
+  margin: 0;
+}
 
-    .form-control {
-      margin-bottom: 15px;
-    }
+.footer .col {
+  padding: 0;
+  text-align: center; /* Ensure content in columns is centered */
+}
 
-    /* Footer style */
-    .footer {
-      background: #f8f9fa;
-      color: #343a40;
-      padding: 10px;
-      text-align: center;
-    }
+.footer p {
+  margin: 0;
+}
 
-    .footer .row {
-      margin: 0;
-    }
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
 
-    .footer .col {
-      padding: 0;
-    }
+.footer i {
+  font-size: 24px;
+}
 
-    .footer p {
-      margin: 0;
-    }
+        #myBtn {
+  display: none;
+  position: fixed;
+  bottom: 15px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  background-color: rgb(210, 210, 233);
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
 
-    .footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
+#myBtn:hover {
+  background-color: #555;
+}
 
-    .footer i {
-      font-size: 24px;
-    }
+    
   </style>
 </head>
 <body>
@@ -93,13 +122,13 @@
     <div class="marquee-text">
       Welcome to the Login page. Please log in to access your account and explore our services!
     </div>
-  <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
+  <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
   </div>  
   <div class="container">
     <form action="/login" method="POST" class="border p-4 shadow-sm rounded">
       <h2 class="text-center mb-4">Login</h2>
       <div class="form-group">
-        <input type="text" name="identifier" class="form-control" placeholder="Email or Username" required>
+        <input type="text" name="identifier" class="form-control" placeholder="Email" required>
       </div>
       <div class="form-group">
         <input type="password" name="password" class="form-control" placeholder="Password" required>
@@ -113,27 +142,31 @@
         <a href="account-management.html">Forgot your password?</a>
       </p>
     </form>
+  </div><br><br>
+ <!-- Footer -->
+ <div class="footer">
+  <div class="row">
+      <div class="col-md-3">
+          <p>Professor Ibeawuchi Amagwu Francis</p>
+          <p>Email: Frank.Amagwu@gmail.com</p>
+          <p>Phone: +234 803 328 4372</p>
+      </div>
+      <div class="col-md-3">
+          <p>Micro and Development Finance</p>
+          <p>National Open University of Nigeria</p>
+          <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+              <i class="fab fa-facebook"></i> Facebook
+          </a>
+      </div>
+      <div class="col-md-3 text-center">
+          <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+          <p>All rights reserved.</p>
+      </div>
   </div>
+</div>
 
-  <!-- Footer -->
-  <div class="footer">
-    <div class="row">
-      <div class="col-md-3">
-        <p>Professor Shamsu Sabo</p>
-      </div>
-      <div class="col-md-3">
-        <p>Professor of Computer Science</p>
-      </div>
-      <div class="col-md-3">
-        <p>University of Excellence</p>
-      </div>
-      <div class="col-md-3">
-        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-          <i class="fab fa-facebook"></i>
-        </a>
-      </div>
-    </div>
-  </div>
+<!-- Back to top button -->
+<button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- Bootstrap JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -147,6 +180,21 @@
         document.getElementById('redirectTo').value = redirectTo;
       }
     });
+    // Back to top button functionality
+window.onscroll = function() {scrollFunction()};
+
+function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        document.getElementById("myBtn").style.display = "block";
+    } else {
+        document.getElementById("myBtn").style.display = "none";
+    }
+}
+
+function topFunction() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}
   </script>
 </body>
 </html>

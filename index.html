@@ -31,13 +31,13 @@
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-    /* Fixed circular images on each side */
-    .fixed-image {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 50%; /* Circular */
-    }
+     /* Fixed circular images on each side */
+     .fixed-image {
+       width: 50px;
+       height: 50px;
+       object-fit: cover;
+       border-radius: 50%; /* Circular */
+     }
     /* Modal transparency */
     .modal-transparent {
       background-color: rgba(0, 0, 0, 0.6);
@@ -49,15 +49,15 @@
     }
     /* Modal image as circular */
     .modal-body img {
-      width: 200px;
-      height: 200px;
+      width: 220px;
+      height: 290px;
       border-radius: 50%;
       margin-bottom: 20px;
       object-fit: cover; /* Ensures the image is fully contained within the circle */
     }
     /* Card image style */
     .card-img-top {
-      height: 150px; /* Smaller image for books */
+      height: 160px; /* Smaller image for books */
       object-fit: cover;
     }
     /* Flexbox for body and footer positioning */
@@ -82,7 +82,7 @@
         margin-bottom: 15px; /* Adjust bottom margin as needed */
       }
     }
-
+  
     @media (max-width: 499px) {
       .row-wrap {
         display: flex;
@@ -95,29 +95,47 @@
       }
     }
     /* Footer style */
-    .footer {
-      background: #f8f9fa;
-      color: #343a40;
-      padding: 10px;
-      text-align: center;
-      width: 100%;
-    }
-    .footer .row {
-      margin: 0;
-    }
-    .footer .col {
-      padding: 0;
-    }
-    .footer p {
-      margin: 0;
-    }
-    .footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .footer i {
-      font-size: 24px;
-    }
+    .form-control { 
+  margin-bottom: 15px;
+}
+
+.footer {
+  background: #f8f9fa;
+  color: #343a40;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  flex-direction: column;  /* Stack items vertically */
+}
+
+.footer .row {
+  width: 100%; /* Ensure row takes up the full width */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically if necessary */
+  margin: 0;
+}
+
+.footer .col {
+  padding: 0;
+  text-align: center; /* Ensure content in columns is centered */
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer i {
+  font-size: 24px;
+}
+
     #myBtn {
       display: none;
       position: fixed;
@@ -132,167 +150,225 @@
       padding: 15px;
       border-radius: 4px;
     }
-
+  
     #myBtn:hover {
       background-color: #555;
     }
   </style>
-</head>
-<body>
+  </head>
+  <body>
   
-  <!-- Moving text banner with fixed circular images -->
+  <!-- Moving text banner -->
   <div class="marquee-container">
     <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
     <div class="marquee-text">
-      Welcome to Professor Shamsu Sabo's publications page! Explore his groundbreaking research and books.
-    </div>
-    <div><img src="prof.jfif" class="fixed-image" alt="Professor Picture"></div>
-  </div>
-
-  <div class="container">
-    <h1 class="text-center my-4">Professor Shamsu Sabo's Publications</h1>
-    
-    <!-- Access Guide Section -->
-    <div class="text-center mb-4">
-      <a href="login.html" class="btn btn-primary btn-lg">Sign up or Log In to Access All Publications</a>
-    </div>
-
-    <!-- Books Section -->
-    <div class="card mb-4">
-      <div class="card-header">
-        <h2>Books</h2>
-        <div id="booksContainer" class="row">
-            <!-- Book items -->
-            <div class="col-md-4 mb-4 book-item" data-title="Data Communication and Networking">
-                <div class="card">
-                    <img src="book1.jfif" class="card-img-top" alt="Data Communication and Networking">
-                    <div class="card-body">
-                        <h5 class="card-title">Data Communication and Networking</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 book-item" data-title="Advanced Embedded Systems">
-                <div class="card">
-                    <img src="book2.jfif" class="card-img-top" alt="Advanced Embedded Systems">
-                    <div class="card-body">
-                        <h5 class="card-title">Advanced Embedded Systems</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 book-item" data-title="Introduction to IoT">
-                <div class="card">
-                    <img src="book3.png" class="card-img-top" alt="Introduction to IoT">
-                    <div class="card-body">
-                        <h5 class="card-title">Introduction to IoT</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h2>Papers</h2>
-        <div id="papersContainer" class="row">
-            <!-- Paper items -->
-            <div class="col-md-4 mb-4 paper-item" data-title="An Arduino-based Low-Cost Hardware for Temperature Control">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">An Arduino-based Low-Cost Hardware for Temperature Control</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 paper-item" data-title="Automatic Temperature Control System on Smart Poultry Farm Using PID Method">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Automatic Temperature Control System on Smart Poultry Farm Using PID Method</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 paper-item" data-title="Abubakar-Microcontroller Based Automatic Temperature">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Abubakar-Microcontroller Based Automatic Temperature</h5>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div></div></div><br>
-  <!-- Footer -->
-  <div class="footer">
-    <div class="row">
-      <div class="col-md-3">
-        <p>Professor Shamsu Sabo</p>
-      </div>
-      <div class="col-md-3">
-        <p>Professor of Computer Science</p>
-      </div>
-      <div class="col-md-3">
-        <p>University of Excellence</p>
-      </div>
-      <div class="col-md-3">
-        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-          <i class="fab fa-facebook"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-
- 
-  <!-- Modal Popup -->
-  <div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content modal-transparent">
-        <div class="modal-body">
-          <img src="prof.jfif" alt="Professor Picture">
-          <h4>Professor Shamsu Sabo</h4>
-          <p>
-            Professor Shamsu Sabo is a distinguished academic with expertise in computer science and engineering. With over 20 years of experience, 
-            he has contributed significantly to fields such as the Internet of Things (IoT), embedded systems, and automation technologies. His 
-            academic journey includes a Ph.D. in Embedded Systems, and his publications have influenced researchers worldwide. He has also 
-            authored several books and collaborated on numerous international projects.
-          </p>
-          <p>
-            His work in IoT applications for healthcare and smart home systems has garnered international recognition. As an educator, 
-            Professor Sabo has mentored hundreds of students and leads groundbreaking research initiatives.
-          </p>
-        </div>
-        <div class="modal-footer">
-          <a href="#" data-dismiss="modal">Click to Proceed to Publications</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Back to top button -->
-  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
-
+      Welcome to Professor Amagwu Ibeawuchi Francis's publications page! Explore his groundbreaking research and books.
   
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+    <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
+  </div>  
+  <br>
+  <header class="bg-light py-3">
+    <div class="container">
+        <h1 class="text-center">Professor Amagwu Ibeawuchi Francis Publications </h1>
+    </div>
+  </header>
+  <body>
+    <main class="container my-4">
+      <div class="row">
+        <!-- Access Guide Section -->
+<div class="form-group col-md-6 text-center mb-4">
+  <a href="login.html" class="btn btn-success btn-lg">Sign up or Log In to Access All Publications</a>
+  </div>
+<!-- Search Section -->
+<div class="form-group col-md-6 search-container ">
+  <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+</div>
+      </div>  
+      
+        <div class="container mt-4">
+            <h2 class="text-center">Books</h2>
+            <div id="book-list" class="row"></div> <!-- Books will be dynamically populated here -->
+  
+            <h2 class="text-center mt-4">Papers</h2>
+            <div id="papers-list" class="row"></div> <!-- Papers will be dynamically populated here -->
+        </div>
+        
+    </main><br>
+  
+    <!-- Footer -->
+    <div class="footer">
+      <div class="row">
+          <div class="col-md-3">
+              <p>Professor Ibeawuchi Amagwu Francis</p>
+              <p>Email: Frank.Amagwu@gmail.com</p>
+              <p>Phone: +234 803 328 4372</p>
+          </div>
+          <div class="col-md-3">
+              <p>Micro and Development Finance</p>
+              <p>National Open University of Nigeria</p>
+              <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+                  <i class="fab fa-facebook"></i> Facebook
+              </a>
+          </div>
+          <div class="col-md-3 text-center">
+              <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+              <p>All rights reserved.</p>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Modal Popup -->
+<div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content modal-transparent">
+      <div class="modal-body">
+        <img src="prof.jpeg" alt="Professor Picture" class="img-fluid rounded-circle">
+        <h4>Professor Ibeawuchi Amagwu</h4>
+        <h5>Brief Profile</h5>
+        <p><strong>Full Name:</strong> Francis Ibeawuchi Amagwu, HCIB, FAHI, WAAD</p>
+        <p><strong>Phone Number:</strong> +234 803 328 4372</p>
+        <p><strong>E-mail:</strong> Frank.Amagwu@gmail.com</p>
+        <p>
+          Amagwu, Ibeawuchi Francis (fondly called Frank) was born in Kafanchan (Kaduna State) and hails from Aboh Mbaise in Imo State. He graduated from the University of Calabar with a B.Sc. (Hons) Degree, Second Class Upper Division in Banking and Finance. He was the best graduating student in the Department of Banking and Finance in 1990 and a recipient of the IBWA Bank Award for Academic Excellence in 1990. He immediately proceeded to the University of Lagos, Akoka, to earn a Master’s of Science (M.Sc.) degree in Finance and later went to the University of Nigeria, Nsukka, where he earned a second M.Sc. degree in Developmental Studies with distinction. Thereafter, he bagged a Ph.D. in Development Finance (also with distinction) from the University of Nigeria Nsukka.
+        </p>
+        <p>
+          An Associate Research Fellow at the African Institute of Applied Economics (AIAE), now African Heritage Institution, Enugu, Ibeawuchi (Frank) Amagwu was the Chairman of Enugu Forum (2006 to 2010). He is a Fellow of the Nigerian Institute of Treasury and Financial Accountants (FTFA) as well as a member of the Nigerian Institute of Management (MNIM) and also belongs to the World Association of Academic Doctors (WAAD) (Charity Organization, Maryland, USA). He is an honorary member of the Chartered Institute of Bankers of Nigeria (HCIB).
+        </p>
+        <p>
+          Frank started his career after graduation with the Federal Airport of Nigeria (FAAN) as an Internal Auditor and later entered into commercial banking practice with Commerce Bank Plc. He also worked with FSB International Bank Plc, briefly with Fidelity Bank PLC before joining First City Monument Bank Plc in 2006, where he worked as Regional Director East on Assistant General Manager grade. He left commercial banking practice after nineteen years to join the Central Bank of Nigeria as Assistant Director in April 2011.
+        </p>
+        <p>
+          He served as the Head of Development Finance at the Central Bank of Nigeria, Enugu from 2011-2016, Associate Head of the Micro, Small and Medium Enterprise Financing Division (MSMEFD), and later as Head of MSMEDF before his appointment as Branch Controller of Central Bank, Abuja Branch. An inspirational leader, motivational speaker, banker, and development finance expert, he is the author of philosophical books like "Life Is Pain" and "The Fool in Me"; has also published several articles on microfinance, development finance, and contemporary issues in both local and international journals like SAGE journal.
+        </p>
+        <p>
+          Married to Dr. Chinedum Christabel, he is blessed with two children. Ibeawuchi (Frank) Amagwu is a faculty member of Apollos University, Montana, USA, and an Associate Professor in Micro and Development Finance. He is also a facilitator with the National Open University of Nigeria (NOUN), currently supervising 10 postgraduate candidates (MSc and MBA) at the Garki Centre.
+        </p>
+        <p>
+          <strong>Present Employment and Responsibilities:</strong> Ibeawuchi Amagwu currently works as the Branch Controller at the Central Bank of Nigeria, Abuja Branch, a position he has held since 2018.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" data-dismiss="modal">Click to Proceed to Publications</a>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    // Scroll to top functionality
-    window.onscroll = function() {scrollFunction()};
-
-    function scrollFunction() {
-      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        document.getElementById("myBtn").style.display = "block";
-      } else {
-        document.getElementById("myBtn").style.display = "none";
-      }
-    }
-
-    function topFunction() {
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-
-    // Show modal automatically after 3 seconds
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+  
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+    <script>
+        // Fetch and display books
+        async function fetchBooks() {
+            try {
+                const response = await fetch('/api/books'); // Fetch books from your API endpoint
+                const books = await response.json();
+                const bookList = document.getElementById('book-list');
+                
+                books.forEach(book => {
+                    const bookCard = document.createElement('div');
+                    bookCard.className = 'col-md-4 resource-card book-item';
+                    bookCard.setAttribute('data-title', book.bookTitle.toLowerCase());
+                    bookCard.innerHTML = `
+                        <div class="card">
+                            <img src="${book.image}" alt="${book.bookTitle}" class="card-img-top resource-image">
+                            <div class="card-body">
+                                <h5 class="card-title">${book.bookTitle}</h5>
+                            </div>
+                        </div>
+                    `;
+                    bookList.appendChild(bookCard);
+                });
+            } catch (error) {
+                console.error('Error fetching books:', error);
+            }
+        }
+  
+        // Fetch and display papers
+        async function fetchPapers() {
+            try {
+                const response = await fetch('/api/papers'); // Fetch papers from your API endpoint
+                const papers = await response.json();
+                const paperList = document.getElementById('papers-list');
+                
+                papers.forEach(paper => {
+                    const paperCard = document.createElement('div');
+                    paperCard.className = 'col-md-4 resource-card paper-item';
+                    paperCard.setAttribute('data-title', paper.paperTitle.toLowerCase());
+                    paperCard.innerHTML = `
+                        <div class="card">
+                            <img src="${paper.image}" alt="${paper.paperTitle}" class="card-img-top resource-image">
+                            <div class="card-body">
+                                <h5 class="card-title">${paper.paperTitle}</h5>
+                            </div>
+                        </div>
+                    `;
+                    paperList.appendChild(paperCard);
+                });
+            } catch (error) {
+                console.error('Error fetching papers:', error);
+            }
+        }
+        
+        // Filter resources based on search input
+        function filterResources() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const bookItems = document.querySelectorAll('.book-item');
+            const paperItems = document.querySelectorAll('.paper-item');
+  
+            bookItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                if (title.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+  
+            paperItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                if (title.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+  
+        // Back to top button functionality
+        window.onscroll = function() {scrollFunction()};
+  
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("myBtn").style.display = "block";
+            } else {
+                document.getElementById("myBtn").style.display = "none";
+            }
+        }
+  
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+      
+        // Fetch the resources after the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBooks();
+            fetchPapers();
+            checkAuth();
+        });
+         // Show modal automatically after 3 seconds
     $(document).ready(function() {
       setTimeout(function() {
         $('#professorModal').modal('show');
       }, 3000);
     });
-  </script>
-
-</body>
-</html>
+    </script>
+  </body>
+  </html>
+  
