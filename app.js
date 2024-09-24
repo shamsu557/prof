@@ -199,32 +199,32 @@ app.post('/login', (req, res) => {
 });
 
 
-// Admin login page
-app.get('/adminLogin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-login.html'));
+// Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// Handle admin login
-app.post('/adminLogin', (req, res) => {
-  const { username, password } = req.body;
+// Handle login
+app.post('/login', (req, res) => {
+  const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
 
-  db.query('SELECT * FROM admins WHERE username = ?', [username], (err, results) => {
-      if (err) {
-          console.error('Error querying database for admin login:', err);
-          return res.status(500).send('Server error');
-      }
+  db.query('SELECT * FROM users WHERE email = ?', [identifier, identifier], (err, results) => {
+    if (err) {
+      console.error('Error querying database for login:', err);
+      return res.status(500).send('Server error');
+    }
 
-      if (results.length === 0) {
-          return res.status(400).send('No admin found');
-      }
+    if (results.length === 0) {
+      return res.status(400).send('No user found');
+    }
 
-      const user = results[0];
-      if (bcrypt.compareSync(password, user.password)) {
-          req.session.user = user;
-          res.redirect('/admin-dashboard.html'); // Redirect to the admin dashboard
-      } else {
-          res.status(400).send('Incorrect password');
-      }
+    const user = results[0];
+    if (bcrypt.compareSync(password, user.password)) {
+      req.session.user = user;
+      res.redirect('/resources.html');
+    } else {
+      res.status(400).send('Incorrect password');
+    }
   });
 });
 
@@ -384,22 +384,32 @@ app.post('/reset-password', (req, res) => {
     });
   });
 });
-// Admin login route
+
+// Admin login page
+app.get('/adminLogin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-login.html'));
+});
+
+// Handle admin login
 app.post('/adminLogin', (req, res) => {
   const { username, password } = req.body;
 
-  // Query the admin table for matching username and password
-  const sql = 'SELECT * FROM admins WHERE username = ? AND password = ?';
-  db.query(sql, [username, password], (err, results) => {
-      if (err) throw err;
+  db.query('SELECT * FROM admins WHERE username = ?', [username], (err, results) => {
+      if (err) {
+          console.error('Error querying database for admin login:', err);
+          return res.status(500).send('Server error');
+      }
 
-      if (results.length > 0) {
-          // Successful login
-          req.session.adminLoggedIn = true;
-          res.redirect('/admin-dashboard.html');
+      if (results.length === 0) {
+          return res.status(400).send('No admin found');
+      }
+
+      const user = results[0];
+      if (bcrypt.compareSync(password, user.password)) {
+          req.session.user = user;
+          res.redirect('/admin-dashboard.html'); // Redirect to the admin dashboard
       } else {
-          // Invalid login
-          res.send('Invalid username or password');
+          res.status(400).send('Incorrect password');
       }
   });
 });

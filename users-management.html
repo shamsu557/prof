@@ -271,7 +271,15 @@
             }
         }
     
-        window.onload = fetchUsers; // Fetch users on page load
+    
+    window.onload = fetchUsers; // Fetch users on page load
+
+    // Admin logout functionality
+function logout() {
+    fetch('/adminLogout', { method: 'POST' })
+        .then(() => window.location.href = '/admin-login.html')
+        .catch(err => console.error('Logout failed', err));
+}
          // Back to top button functionality
  window.onscroll = function() {scrollFunction()};
   
