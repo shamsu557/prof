@@ -389,6 +389,10 @@ app.post('/reset-password', (req, res) => {
 app.get('/adminLogin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-login.html'));
 });
+// about page 
+app.get('/About', (req, res) => {
+  res.sendFile(path.join(__dirname, 'about.html'));
+});
 
 // Handle admin login
 app.post('/adminLogin', (req, res) => {

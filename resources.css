@@ -1,0 +1,126 @@
+    /* Moving text style with fixed images */
+    .marquee-container {
+      background: #f8f9fa;
+      border-bottom: 2px solid #ddd;
+      overflow: hidden;
+      position: relative;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .marquee-text {
+      white-space: nowrap;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      line-height: 50px;
+      animation: marquee 25s linear infinite;
+      font-weight: bold;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    /* Fixed circular images on each side */
+    .fixed-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%; /* Circular */
+    }
+    
+   /* Container to center the image */
+.card {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100%; /* Ensure the card has height for vertical centering */
+  text-align: center; /* Ensure content is centered */
+}
+
+/* Card image style */
+.card-img-top {
+  height: 170px; /* Fixed height for consistency */
+  width: 80%; /* 80% of the card's width */
+  object-fit: contain; /* Maintain aspect ratio without cropping */
+  border-radius: 5px; /* Optional: to give a rounded effect */
+}
+
+    /* Flexbox for body and footer positioning */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      flex: 1;
+    }
+    /* Ensure books and papers are in one row for small devices */
+    @media (min-width: 500px) {
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 33.33%; /* Three items per row for screens 500px and wider */
+        max-width: 33.33%; /* Ensure items take up one-third of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
+
+    @media (max-width: 499px) {
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .row-wrap > div {
+        flex: 0 0 50%; /* Two items per row for screens narrower than 500px */
+        max-width: 50%; /* Ensure items take up half of the row */
+        margin-bottom: 15px; /* Adjust bottom margin as needed */
+      }
+    }
+    /* Footer style */
+    .footer {
+      background: #f8f9fa;
+      color: #343a40;
+      padding: 10px;
+      text-align: center;
+      width: 100%;
+    }
+    .footer .row {
+      margin: 0;
+    }
+    .footer .col {
+      padding: 0;
+    }
+    .footer p {
+      margin: 0;
+    }
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .footer i {
+      font-size: 24px;
+    }
+    #myBtn {
+      display: none;
+      position: fixed;
+      bottom: 15px;
+      right: 30px;
+      z-index: 99;
+      border: none;
+      outline: none;
+      background-color: rgb(210, 210, 233);
+      color: white;
+      cursor: pointer;
+      padding: 15px;
+      border-radius: 4px;
+    }
+
+    #myBtn:hover {
+      background-color: #555;
+    }
+  
