@@ -55,11 +55,14 @@
       margin-bottom: 20px;
       object-fit: cover; /* Ensures the image is fully contained within the circle */
     }
-    /* Card image style */
-    .card-img-top {
-      height: 150px; /* Smaller image for books */
-      object-fit: cover;
-    }
+   /* Card image style */
+.card-img-top {
+  height: 170px; /* Fixed height for consistency */
+  width: 80%; /* Full width of the container */
+  object-fit: contain; /* Maintain aspect ratio without cropping */
+  border-radius: 5px; /* Optional: to give a rounded effect */
+}
+
     /* Flexbox for body and footer positioning */
     body {
       display: flex;

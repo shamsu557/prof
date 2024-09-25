@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin creation</title>
+  <title>Admin Creation</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <style>
@@ -23,13 +23,18 @@
       width: 100%;
       text-align: center;
       line-height: 50px;
+      animation: marquee 25s linear infinite;
       font-weight: bold;
     }
+    @keyframes marquee {
+  0% { transform: translateX(100%); } /* Start off-screen to the right */
+  100% { transform: translateX(-100%); } /* End off-screen to the left */
+}
     .fixed-image {
       width: 50px;
       height: 50px;
       object-fit: cover;
-      border-radius: 50%; /* Circular */
+      border-radius: 50%;
     }
 
     body {
@@ -40,52 +45,52 @@
     }
 
     .container {
-      max-width: 600px;
+      max-width: 400px;
       margin-top: 70px;
       flex: 1;
     }
-    .form-control { 
-  margin-bottom: 15px;
-}
 
-.footer {
-  background: #f8f9fa;
-  color: #343a40;
-  padding: 10px;
-  text-align: center;
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;     /* Center vertically */
-  flex-direction: column;  /* Stack items vertically */
-}
+    .form-control {
+      margin-bottom: 15px;
+    }
 
-.footer .row {
-  width: 100%; /* Ensure row takes up the full width */
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;     /* Center vertically if necessary */
-  margin: 0;
-}
+    .footer {
+      background: #f8f9fa;
+      color: #343a40;
+      padding: 10px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
 
-.footer .col {
-  padding: 0;
-  text-align: center; /* Ensure content in columns is centered */
-}
+    .footer .row {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
 
-.footer p {
-  margin: 0;
-}
+    .footer .col {
+      padding: 0;
+      text-align: center;
+    }
 
-.footer a {
-  color: #007bff;
-  text-decoration: none;
-}
+    .footer p {
+      margin: 0;
+    }
 
-.footer i {
-  font-size: 24px;
-}
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
 
-    
+    .footer i {
+      font-size: 24px;
+    }
+
     #myBtn {
       display: none;
       position: fixed;
@@ -100,11 +105,11 @@
       padding: 15px;
       border-radius: 4px;
     }
-  
+
     #myBtn:hover {
       background-color: #555;
     }
-  </style>
+    </style>
 </head>
 <body>
   <!-- Moving text banner -->
@@ -116,69 +121,70 @@
     <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
   </div>  
   
-  <!-- Admin Login Form -->
-  <div class="container" id="loginContainer">
-    <form id="loginForm" class="border p-4 shadow-sm rounded">
+<!-- Admin Login Form -->
+<div class="container" id="loginContainer">
+  <form id="loginForm" class="border p-4 shadow-sm rounded">
       <div class="card-header text-center">
-        Admin Creation Login
+          Admin Creation Login
       </div>
       <div class="card-body">
-        <div class="form-group">
-          <label for="loginUsername">Username</label>
-          <input type="text" class="form-control" id="loginUsername" required>
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" class="form-control" id="loginPassword" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Login</button>
+          <div class="form-group">
+              <label for="loginUsername">Username</label>
+              <input type="text" class="form-control" id="loginUsername" required>
+          </div>
+          <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" class="form-control" id="loginPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
       </div>
-    </form>
-  </div>
+  </form>
+</div>
 
-  <!-- Admin Signup Form -->
-  <div class="container" id="signupContainer">
-    <form id="signupForm" action="/admin-signup" method="POST" class="border p-4 shadow-sm rounded">
+<!-- Admin Signup Form -->
+<div class="container" id="signupContainer">
+  <form id="signupForm" action="/admin-signup" method="POST" class="border p-4 shadow-sm rounded">
       <div class="card-header text-center">
-        Admin Creation
+          Admin Creation
       </div>
       <div class="card-body">
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input type="text" class="form-control" id="fullName" name="fullName" required>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="username">Username</label>
-              <input type="text" class="form-control" id="username" name="username" required>
-            </div>
+          <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input type="text" class="form-control" id="fullName" name="fullName" required>
           </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" name="password" required>
-            </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="username">Username</label>
+                      <input type="text" class="form-control" id="username" name="username" required>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="password">Password</label>
+                      <input type="password" class="form-control" id="password" name="password" required>
+                  </div>
+              </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" id="email" name="email" required>
-            </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="email">Email</label>
+                      <input type="email" class="form-control" id="email" name="email" required>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="phone">Phone Number</label>
+                      <input type="tel" class="form-control" id="phone" name="phone" required>
+                  </div>
+              </div>
           </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="phone">Phone Number</label>
-              <input type="tel" class="form-control" id="phone" name="phone" required>
-            </div>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Create Admin</button>
+          <button type="submit" class="btn btn-primary btn-block">Create Admin</button>
       </div>
-    </form>
-  </div><br><br>
+  </form>
+</div>
+<br><br>
 
    <!-- Footer -->
    <div class="footer">
