@@ -30,7 +30,18 @@
         <button type="submit" class="btn btn-success btn-block">Submit</button>
       </form>
 
-      <!-- Reset Password Form (Initially hidden, shown when email is valid) -->
+      <!-- Security Question Form (Initially hidden) -->
+      <form id="securityQuestionForm" action="/validate-security-answer" method="POST" class="border p-4 shadow-sm rounded" style="display:none;">
+        <h2 class="text-center mb-4">Security Question</h2>
+        <input type="hidden" name="email" id="securityEmail">
+        <div class="form-group">
+          <label id="securityQuestionLabel"></label> <!-- Placeholder for the security question -->
+          <input type="text" name="securityAnswer" class="form-control" placeholder="Your Answer" required>
+        </div>
+        <button type="submit" class="btn btn-info btn-block">Submit Answer</button>
+      </form>
+
+      <!-- Reset Password Form (Initially hidden, shown when the security answer is valid) -->
       <form id="resetPasswordForm" action="/reset-password" method="POST" class="border p-4 shadow-sm rounded" style="display:none;">
         <h2 class="text-center mb-4">Reset Password</h2>
         <input type="hidden" name="email" id="resetEmail">
@@ -47,35 +58,38 @@
       <div id="message" class="alert alert-info mt-3 text-center" style="display:none;"></div>
     </div>
   </div>
+
   <!-- Footer -->
   <div class="footer">
     <div class="row">
-        <div class="col-md-3">
-            <p>Professor Ibeawuchi Amagwu Francis</p>
-            <p>Email: Frank.Amagwu@gmail.com</p>
-            <p>Phone: +234 803 328 4372</p>
-        </div>
-        <div class="col-md-3">
-            <p>Micro and Development Finance</p>
-            <p>National Open University of Nigeria</p>
-            <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-                <i class="fab fa-facebook"></i> Facebook
-            </a>
-        </div>
-        <div class="col-md-3 text-center">
-            <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
-            <p>All rights reserved.</p>
-        </div>
+      <div class="col-md-3">
+        <p>Professor Ibeawuchi Amagwu Francis</p>
+        <p>Email: Frank.Amagwu@gmail.com</p>
+        <p>Phone: +234 803 328 4372</p>
+      </div>
+      <div class="col-md-3">
+        <p>Micro and Development Finance</p>
+        <p>National Open University of Nigeria</p>
+        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+          <i class="fab fa-facebook"></i> Facebook
+        </a>
+      </div>
+      <div class="col-md-3 text-center">
+        <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+        <p>All rights reserved.</p>
+      </div>
     </div>
-</div>
+  </div>
 
-    <!-- Back to top button -->
-    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
-  
- 
+  <!-- Back to top button -->
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
   <!-- Bootstrap JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
   <script src="acc.js"></script>
+
+  <script src="acc.js">
+    </script>
 </body>
 </html>
