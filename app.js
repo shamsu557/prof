@@ -63,7 +63,7 @@ app.get('/signup', (req, res) => {
 
 // Handle sign up
 app.post('/signup', (req, res) => {
-  const { fullname, email, phone_number, password } = req.body;
+  const { fullname, email, phone_number, password,securityQuestion, securityAnswer} = req.body;
 
   // First, check if the email or username already exists
   db.query('SELECT email FROM users WHERE email = ? ', [email], (err, results) => {
@@ -88,8 +88,8 @@ app.post('/signup', (req, res) => {
       }
 
       db.query(
-        'INSERT INTO users (fullname, email, phone_number, password) VALUES (?, ?, ?, ?)', 
-        [fullname,email, phone_number, hashedPassword], 
+        'INSERT INTO users (fullname, email, phone_number, password, securityQuestion, securityAnswer) VALUES (?, ?, ?,?,?, ?)', 
+        [fullname,email, phone_number, hashedPassword,securityQuestion, securityAnswer], 
         (err) => {
           if (err) {
             console.error('Error inserting user into database:', err);
@@ -346,14 +346,39 @@ app.get('/auth-check', (req, res) => {
 app.post('/forgot-password', (req, res) => {
   const { email } = req.body;
 
-  db.query('SELECT * FROM users WHERE email = ?', [email], (err, result) => {
+  db.query('SELECT securityQuestion FROM users WHERE email = ?', [email], (err, result) => {
     if (err) {
       console.error('Error checking email:', err);
       return res.status(500).send('Server error');
     }
 
     if (result.length > 0) {
-      res.json({ success: true, message: 'Email found. Please enter your new password.' });
+      const securityQuestion = result[0].securityQuestion;
+      res.json({ success: true, message: 'Email found. Please answer the security question.', securityQuestion });
+    } else {
+      res.json({ success: false, message: 'Email does not exist.' });
+    }
+  });
+});
+
+// Validate security answer endpoint
+app.post('/validate-security-answer', (req, res) => {
+  const { email, securityAnswer } = req.body;
+
+  db.query('SELECT securityAnswer FROM users WHERE email = ?', [email], (err, result) => {
+    if (err) {
+      console.error('Error checking security answer:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (result.length > 0) {
+      const correctAnswer = result[0].securityAnswer.trim().toUpperCase();
+
+      if (correctAnswer === securityAnswer) {
+        res.json({ success: true, message: 'Security answer correct. You may now reset your password.' });
+      } else {
+        res.json({ success: false, message: 'Incorrect security answer. Please try again.' });
+      }
     } else {
       res.json({ success: false, message: 'Email does not exist.' });
     }
