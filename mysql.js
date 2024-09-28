@@ -1,13 +1,13 @@
 const mysql = require('mysql');
 
-
 // MySQL database connection
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '@Shamsu1440',
-    database: 'professor_website'
-  });  
+    host: process.env.DB_HOST || 'mysql-shamsu557.alwaysdata.net',  // Use environment variable or default
+    port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
+    user: process.env.DB_USER || 'shamsu557_db',                   // MySQL username from environment
+    password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
+    database: process.env.DB_NAME || 'shamsu557_mydatabase'        // Database name from environment
+});
 
 // Connect to MySQL database
 db.connect((err) => {
