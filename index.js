@@ -8,6 +8,8 @@ const adminRoutes = require('./admin-routes');
 const fs = require('fs');
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
+const { createClient } = require('redis');  // Import Redis client
+
 
 // Set up session
 app.use(session({
@@ -16,6 +18,24 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure: false } // Change to true in production with HTTPS
 }));
+// Create a Redis client using your provided Redis URL
+const redisClient = createClient({
+  url: 'redis://red-crs01td6l47c73cpmq4g:6379', // Use your Redis URL here
+});
+
+// Connect to Redis
+redisClient.connect()
+  .then(() => {
+    console.log('Connected to Redis successfully');
+  })
+  .catch((err) => {
+    console.error('Redis connection error:', err);
+  });
+
+// Handle Redis connection errors
+redisClient.on('error', (err) => {
+  console.error('Redis encountered an error:', err);
+});
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
