@@ -6,17 +6,28 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
+const MySQLStore = require('express-mysql-session')(session); // Include MySQL session store
 
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
+// MySQL session store options
+const sessionStore = new MySQLStore({
+  host: 'mysql-shamsu557.alwaysdata.net',
+  user: '3306',     // Replace with your MySQL user
+  password: '@Shamsu1440', // Replace with your MySQL password
+  database: 'shamsu557_mydatabase' // Replace with your MySQL database
+});
 
-// Set up session
+// Set up session with MySQL store
 app.use(session({
   secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
   resave: false,
   saveUninitialized: false,
+  store: sessionStore, // Use MySQL-based session store
   cookie: { secure: false } // Change to true in production with HTTPS
 }));
+
+
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
