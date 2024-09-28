@@ -3,9 +3,11 @@
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "connect-redis": "^7.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-fileupload": "^1.5.1",
+    "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.0",
     "express.js": "^1.0.0",
     "googleapis": "^134.0.0",
@@ -17,7 +19,8 @@
     "path": "^0.12.7",
     "paystack": "^2.0.1",
     "pdfkit": "^0.15.0",
-    "punycode": "^2.3.1"
+    "punycode": "^2.3.1",
+    "redis": "^4.7.0"
   },
   "name": "school-web",
   "version": "1.0.0",
@@ -25,8 +28,6 @@
   "scripts": {
     "start": "node index.js"
   },
- 
-  
   "keywords": [],
   "author": "",
   "license": "ISC",
