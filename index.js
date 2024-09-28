@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
-
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
 
@@ -454,3 +453,7 @@ app.get('/adminLogout', (req, res) => {
 });
 app.use('/admin', adminRoutes);
 
+const PORT = process.env.PORT || 8100; // Use the PORT environment variable provided by Render
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
