@@ -6,34 +6,17 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
-const redis = require('redis'); // Import redis
-const RedisStore = require('connect-redis')(session); // Import connect-redis
+
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
 
-
-// Create Redis client using the URL provided by Render
-const redisClient = redis.createClient({
-  url: 'redis://red-crs01td6l47c73cpmq4g:6379' // Your Redis URL from Render
-});
-
-// Ensure Redis client connects properly
-redisClient.connect().catch(console.error);
-
-// Optional: Redis error handling
-redisClient.on('error', (err) => {
-  console.error('Redis error:', err);
-});
-
-// Configure session to use Redis for session storage
+// Set up session
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
   secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 3600000 }
+  cookie: { secure: false } // Change to true in production with HTTPS
 }));
-
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
