@@ -6,17 +6,32 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
+const MySQLStore = require('express-mysql-session')(session); // Import MySQL session store
 
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
 
-// Set up session
+// MySQL session store options
+const sessionStore = new MySQLStore({
+  host: process.env.DB_HOST || 'mysql-shamsu557.alwaysdata.net',  // Use environment variable or default
+  port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
+  user: process.env.DB_USER || 'shamsu557_db',                   // MySQL username from environment
+  password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
+  database: process.env.DB_NAME || 'shamsu557_mydatabase'        // Database name from environment
+});
+
+// Set up session with MySQL store
 app.use(session({
-  secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // Change to true in production with HTTPS
+  secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',  // Use a strong, secure secret
+  resave: false,                               // Don't resave session if unmodified
+  saveUninitialized: false,                    // Don't save empty sessions
+  store: sessionStore,                         // Use MySQL-based session store
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',  // Set to true if using HTTPS in production
+    maxAge: 24 * 60 * 60 * 1000 // 1 day expiration for session cookies
+  }
 }));
+
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
