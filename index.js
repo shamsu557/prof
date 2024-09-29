@@ -20,17 +20,16 @@ const sessionStore = new MySQLStore({
   database: process.env.DB_NAME || 'shamsu557_mydatabase'        // Database name from environment
 });
 
+
 // Set up session with MySQL store
 app.use(session({
-  secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',  // Use a strong, secure secret
-  resave: false,                               // Don't resave session if unmodified
-  saveUninitialized: false,                    // Don't save empty sessions
-  store: sessionStore,                         // Use MySQL-based session store
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',  // Set to true if using HTTPS in production
-    maxAge: 24 * 60 * 60 * 1000 // 1 day expiration for session cookies
-  }
+  secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore, // Use MySQL-based session store
+  cookie: { secure: false } // Change to true in production with HTTPS
 }));
+
 
 
 // Middleware to parse incoming request bodies
