@@ -7,8 +7,8 @@ const bcrypt = require('bcryptjs');
 
 // Constants for OneDrive API
 const ONEDRIVE_API_BASE = 'https://graph.microsoft.com/v1.0/me/drive';
-const ONE_DRIVE_UPLOAD_URL = `${ONEDRIVE_API_BASE}/root:/prof-uploads/`; // Upload path to 'prof-uploads'
-const ONEDRIVE_ACCESS_TOKEN = 'EwB4A8l6BAAUbDba3x2OMJElkF7gJ4z/VbCPEz0AAbzCXXe3fDU4s44AOMTfrkeL4qgrfJFNdqekR7/xNubPcUdw3ji63iy6+V0ea8MTZS2E2BJ4YxELCDr0ZtLCmVpKPvaIZgFuEFRDr59oPJ5eDwhCUhKnaTas34UCMYL4huOFScAAAr7y1DDprwR4mQiontJCjNPhtGiluCuWLsD548ytZcHQq18fYlD7C4eraLEo3Dz5gNsXPRhsxr76f/t7LNAqUTjGWcXFia9Zl9ltx2ng6omUvkFqPr98JyRs3DeFuvNnXYAzPG4npXMlWvERUY0UqfnRzEiW9AwckUT5ptcD8yCd5nAq+Ox6oiDwJ/izFfOoG/Y/r1XMVFqHpSIQZgAAEARYQ5Do71WnP6OyggfzTtBAAgGBuRePl0GbMmK9yobXZV0KwcEnso/32G0m99oyyra1IwEEsW9eha2gcxG+gGMbS+dvmm/pP0fZjodOi5z+jn7y/nJh00X1phNP9UrrpuqBYzZ7T4rcRuXBVb9zdyT5X75baC0nXtjRaF/UHif7YKC2v4siMzDGkGluhRg9s6MVyPDIL3Nyn4PHMuPb217K1PxRg/Lv2/d1OHEVoUMBl5YkNnH/4FUwlMRAclNqy1cgl66KVit8V6GyeLiPjHtj4ZlRmiffAHClzBnU1hc90gJ0pfh+6FsP3USVrpC76P113jr6YLFYKN8B3R1ROQdt3LmHOVRYLucySZoPBM5/BnO+F4w6+YLvV5P9NezYdeHQ1+i17VcIREC2WWueNwOZrQl5Da20CxYPDBR3SGZk/5y4l9LrcL5YAgAI+NzLJdGsqON2P7mdMCfZHHeGpVKcr++vfZrHTpAjrt3SOQeWUhKm6gUR02XHW3xL3JEuOJpa1b0A4pJB1BONzxVMZ1xb7cRvBJkbchKfH39Zbdol4uVxIWqgKtAUnQdhURjJfWz2jOukp3Cvlb1Bt9LOtsqFWtGSCgemdzbrYp4F0MOfUhgd09ernTq+Nn7i/Y5/IZ/zHERmUvnZKTIWHUUyxWrTJXfL65v8wVWu+vQCcEynoOibfm3h+yYsMsCuGsTIzTW7Qrk9eRhjubO48g/nNvBu/2+lZ/9eT8UVXXpB5dtUUfBFhKAxTOZ1DkR8E3oYEFVpiiEEIeJO1MpwDBIP5g4qjYAC';
+const ONE_DRIVE_UPLOAD_URL = `${ONEDRIVE_API_BASE}/root:/prof-uploads/`;
+const ONEDRIVE_ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'; // Replace with your access token
 
 // Helper function to upload file to OneDrive
 async function uploadToOneDrive(fileName, fileBuffer, folderName) {
@@ -53,13 +53,50 @@ router.get('/stats', (req, res) => {
     });
 });
 
+// Route to get all users
+router.get('/getUsers', (req, res) => {
+    const sql = 'SELECT id, fullname, email, created_at FROM users';
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ message: 'Error fetching users' });
+        }
+        res.json(results);
+    });
+});
+
+// Route to remove a user
+router.delete('/removeUser/:id', async (req, res) => {
+    const userId = req.params.id;
+    const { username, password } = req.body;
+
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const sqlDeleteUser = 'DELETE FROM users WHERE id = ?';
+        db.query(sqlDeleteUser, [userId], (err) => {
+            if (err) {
+                console.error('Error removing user:', err);
+                return res.status(500).json({ message: 'Error removing user' });
+            }
+            res.json({ message: 'User removed successfully!' });
+        });
+    });
+});
+
 // Middleware to check if admin is authenticated
 router.get('/is-logged-in', (req, res) => {
-    if (req.session.isAdmin) {
-        res.json({ isLoggedIn: true });
-    } else {
-        res.json({ isLoggedIn: false });
-    }
+    res.json({ isLoggedIn: !!req.session.isAdmin });
 });
 
 // Route to get all books
@@ -82,11 +119,9 @@ router.get('/getPapers', (req, res) => {
 
 // Route to add a book (OneDrive upload)
 router.post('/addBook', async (req, res) => {
-    const { bookTitle, username, password, fileBuffer, imageBuffer } = req.body; // File buffers for book and image
-
+    const { bookTitle, username, password, fileBuffer, imageBuffer } = req.body;
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
     const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
 
     db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
@@ -95,14 +130,11 @@ router.post('/addBook', async (req, res) => {
         }
 
         const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
         const match = await bcrypt.compare(password, admin.password);
         if (!match) {
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // Check if the book title already exists in the database
         const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
         db.query(sqlCheckBook, [bookTitle], async (err, result) => {
             if (err) throw err;
@@ -110,12 +142,10 @@ router.post('/addBook', async (req, res) => {
                 return res.status(400).json({ message: 'Book with this title already exists' });
             }
 
-            // Upload book file and image to OneDrive
             try {
-                const bookFile = await uploadToOneDrive(bookTitle + '.pdf', fileBuffer, 'Books');
-                const bookImage = await uploadToOneDrive(bookTitle + '-image.jpg', imageBuffer, 'BookImages');
+                const bookFile = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
+                const bookImage = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
 
-                // Insert book details into database
                 const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
                 db.query(sqlInsertBook, [bookTitle, bookFile.id, dateAdded, bookImage.id], (err) => {
                     if (err) throw err;
@@ -131,10 +161,8 @@ router.post('/addBook', async (req, res) => {
 // Route to add a paper (OneDrive upload)
 router.post('/addPaper', async (req, res) => {
     const { paperTitle, username, password, fileBuffer, imageBuffer } = req.body;
-
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
     const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
 
     db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
@@ -143,14 +171,11 @@ router.post('/addPaper', async (req, res) => {
         }
 
         const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
         const match = await bcrypt.compare(password, admin.password);
         if (!match) {
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // Check if the paper title already exists in the database
         const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
         db.query(sqlCheckPaper, [paperTitle], async (err, result) => {
             if (err) throw err;
@@ -158,12 +183,10 @@ router.post('/addPaper', async (req, res) => {
                 return res.status(400).json({ message: 'Paper with this title already exists' });
             }
 
-            // Upload paper file and image to OneDrive
             try {
-                const paperFile = await uploadToOneDrive(paperTitle + '.pdf', fileBuffer, 'Papers');
-                const paperImage = await uploadToOneDrive(paperTitle + '-image.jpg', imageBuffer, 'PaperImages');
+                const paperFile = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
+                const paperImage = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
 
-                // Insert paper details into database
                 const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
                 db.query(sqlInsertPaper, [paperTitle, paperFile.id, dateAdded, paperImage.id], (err) => {
                     if (err) throw err;
@@ -177,29 +200,62 @@ router.post('/addPaper', async (req, res) => {
 });
 
 // Route to remove a book
-router.delete('/removeBook/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = 'DELETE FROM books WHERE id = ?';
-    db.query(sql, [id], (err) => {
-        if (err) throw err;
-        res.status(204).send();
+router.delete('/removeBook/:id', async (req, res) => {
+    const bookId = req.params.id;
+    const { username, password } = req.body;
+
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
+        db.query(sqlDeleteBook, [bookId], (err) => {
+            if (err) {
+                console.error('Error removing book:', err);
+                return res.status(500).json({ message: 'Error removing book' });
+            }
+            res.json({ message: 'Book removed successfully!' });
+        });
     });
 });
 
 // Route to remove a paper
-router.delete('/removePaper/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = 'DELETE FROM papers WHERE id = ?';
-    db.query(sql, [id], (err) => {
-        if (err) throw err;
-        res.status(204).send();
+router.delete('/removePaper/:id', async (req, res) => {
+    const paperId = req.params.id;
+    const { username, password } = req.body;
+
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+
+    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+        if (err || adminResult.length === 0) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const admin = adminResult[0];
+        const match = await bcrypt.compare(password, admin.password);
+        if (!match) {
+            return res.status(403).json({ message: 'Invalid admin credentials' });
+        }
+
+        const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
+        db.query(sqlDeletePaper, [paperId], (err) => {
+            if (err) {
+                console.error('Error removing paper:', err);
+                return res.status(500).json({ message: 'Error removing paper' });
+            }
+            res.json({ message: 'Paper removed successfully!' });
+        });
     });
 });
 
-// Route for admin logout
-router.get('/adminLogout', (req, res) => {
-    req.session.isAdmin = false; // Mark the admin as logged out
-    res.status(200).json({ message: 'Admin logged out successfully' });
-});
-
+// Export the router
 module.exports = router;
