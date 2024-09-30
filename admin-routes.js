@@ -6,6 +6,25 @@ const multer = require('multer');
 const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
 
+// Serve static files (HTML, CSS, JS)
+router.use(express.static(path.join(__dirname))); // Serving static files
+
+// Set up storage for uploaded files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = path.join(__dirname); // Ensure this folder exists
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to filename
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // Constants for OneDrive API
 const ONEDRIVE_API_BASE = 'https://graph.microsoft.com/v1.0/me/drive';
 const ONE_DRIVE_UPLOAD_URL = `${ONEDRIVE_API_BASE}/root:/prof-uploads/`;
