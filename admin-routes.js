@@ -1,29 +1,37 @@
 const express = require('express');
 const path = require('path');
-const multer = require('multer');
 const fs = require('fs');
 const router = express.Router();
 const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
 
+// Constants for OneDrive API
+const ONEDRIVE_API_BASE = 'https://graph.microsoft.com/v1.0/me/drive';
+const ONE_DRIVE_UPLOAD_URL = `${ONEDRIVE_API_BASE}/root:/prof-uploads/`;
+const ONEDRIVE_ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'; // Replace with your access token
+
+// Helper function to upload file to OneDrive
+async function uploadToOneDrive(fileName, fileBuffer, folderName) {
+    try {
+        const uploadUrl = `${ONE_DRIVE_UPLOAD_URL}${folderName}/${fileName}:/content`;
+
+        const response = await axios.put(uploadUrl, fileBuffer, {
+            headers: {
+                'Authorization': `Bearer ${ONEDRIVE_ACCESS_TOKEN}`,
+                'Content-Type': 'application/octet-stream',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading to OneDrive:', error.response?.data || error.message);
+        throw new Error('Failed to upload to OneDrive');
+    }
+}
 
 
 // Serve static files (HTML, CSS, JS)
 router.use(express.static(path.join(__dirname))); // Serving static files
 
-// Set up storage for uploaded files
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(__dirname); // Ensure this folder exists
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to filename
-    }
-});
 
 const upload = multer({ storage: storage });
 
@@ -102,23 +110,29 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // Check if the book title already exists in the database
         const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
-        db.query(sqlCheckBook, [bookTitle], (err, result) => {
+        db.query(sqlCheckBook, [bookTitle], async (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
                 return res.status(400).json({ message: 'Book with this title already exists' });
             }
 
-            // If no duplicate, proceed to add the book
-            const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-            db.query(sqlInsertBook, [bookTitle, fileName, dateAdded, imageName], (err) => {
-                if (err) throw err;
-                res.status(201).json({ message: 'Book added successfully!' });
-            });
+            try {
+                const bookFile = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
+                const bookImage = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
+
+                const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+                db.query(sqlInsertBook, [bookTitle, bookFile.id, dateAdded, bookImage.id], (err) => {
+                    if (err) throw err;
+                    res.status(201).json({ message: 'Book added successfully!' });
+                });
+            } catch (error) {
+                res.status(500).json({ message: 'Failed to upload book to OneDrive' });
+            }
         });
     });
 });
+
 // Route to add a paper
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
     const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
@@ -142,24 +156,28 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
             return res.status(403).json({ message: 'Invalid admin credentials' });
         }
 
-        // Check if the paper title already exists in the database
         const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
-        db.query(sqlCheckPaper, [paperTitle], (err, result) => {
+        db.query(sqlCheckPaper, [paperTitle], async (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
                 return res.status(400).json({ message: 'Paper with this title already exists' });
             }
 
-            // If no duplicate, proceed to add the paper
-            const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-            db.query(sqlInsertPaper, [paperTitle, fileName, dateAdded, imageName], (err) => {
-                if (err) throw err;
-                res.status(201).json({ message: 'Paper added successfully!' });
-            });
+            try {
+                const paperFile = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
+                const paperImage = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
+
+                const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+                db.query(sqlInsertPaper, [paperTitle, paperFile.id, dateAdded, paperImage.id], (err) => {
+                    if (err) throw err;
+                    res.status(201).json({ message: 'Paper added successfully!' });
+                });
+            } catch (error) {
+                res.status(500).json({ message: 'Failed to upload paper to OneDrive' });
+            }
         });
     });
 });
-
 
 // Route to get all users
 router.get('/getUsers', (req, res) => {
