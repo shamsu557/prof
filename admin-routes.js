@@ -5,6 +5,7 @@ const router = express.Router();
 const multer = require('multer');
 const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
+const axios = require('axios');
 
 // Serve static files (HTML, CSS, JS)
 router.use(express.static(path.join(__dirname))); // Serving static files
@@ -12,14 +13,14 @@ router.use(express.static(path.join(__dirname))); // Serving static files
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = path.join(__dirname); // Ensure this folder exists
+        const dir = path.join(__dirname);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to filename
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`); // Append timestamp to filename
     }
 });
 
@@ -48,200 +49,167 @@ async function uploadToOneDrive(fileName, fileBuffer, folderName) {
     }
 }
 
-
-// Serve static files (HTML, CSS, JS)
-router.use(express.static(path.join(__dirname))); // Serving static files
-
-
-const upload = multer({ storage: storage });
-
 // API to fetch user and resource counts for the admin dashboard
-router.get('/stats', (req, res) => {
-    const sqlUsersCount = 'SELECT COUNT(*) AS count FROM users';
-    const sqlBooksCount = 'SELECT COUNT(*) AS count FROM books';
-    const sqlPapersCount = 'SELECT COUNT(*) AS count FROM papers';
+router.get('/stats', async (req, res) => {
+    try {
+        const sqlUsersCount = 'SELECT COUNT(*) AS count FROM users';
+        const sqlBooksCount = 'SELECT COUNT(*) AS count FROM books';
+        const sqlPapersCount = 'SELECT COUNT(*) AS count FROM papers';
 
-    db.query(sqlUsersCount, (err, userResult) => {
-        if (err) throw err;
+        const [userResult] = await db.query(sqlUsersCount);
+        const [booksResult] = await db.query(sqlBooksCount);
+        const [papersResult] = await db.query(sqlPapersCount);
 
-        db.query(sqlBooksCount, (err, booksResult) => {
-            if (err) throw err;
-
-            db.query(sqlPapersCount, (err, papersResult) => {
-                if (err) throw err;
-
-                res.json({
-                    usersCount: userResult[0].count,
-                    booksCount: booksResult[0].count,
-                    papersCount: papersResult[0].count,
-                });
-            });
+        res.json({
+            usersCount: userResult.count,
+            booksCount: booksResult.count,
+            papersCount: papersResult.count,
         });
-    });
+    } catch (err) {
+        console.error('Error fetching stats:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
 // Middleware to check if admin is authenticated
 router.get('/is-logged-in', (req, res) => {
-    if (req.session.isAdmin) {
-        res.json({ isLoggedIn: true });
-    } else {
-        res.json({ isLoggedIn: false });
-    }
+    res.json({ isLoggedIn: !!req.session.isAdmin });
 });
 
 // Route to get all books
-router.get('/getBooks', (req, res) => {
-    const sql = 'SELECT * FROM books';
-    db.query(sql, (err, results) => {
-        if (err) throw err;
+router.get('/getBooks', async (req, res) => {
+    try {
+        const sql = 'SELECT * FROM books';
+        const results = await db.query(sql);
         res.json(results);
-    });
+    } catch (err) {
+        console.error('Error fetching books:', err);
+        res.status(500).json({ message: 'Error fetching books' });
+    }
 });
 
 // Route to get all papers
-router.get('/getPapers', (req, res) => {
-    const sql = 'SELECT * FROM papers';
-    db.query(sql, (err, results) => {
-        if (err) throw err;
+router.get('/getPapers', async (req, res) => {
+    try {
+        const sql = 'SELECT * FROM papers';
+        const results = await db.query(sql);
         res.json(results);
-    });
+    } catch (err) {
+        console.error('Error fetching papers:', err);
+        res.status(500).json({ message: 'Error fetching papers' });
+    }
 });
+
+// Function to verify admin credentials
+async function verifyAdmin(username, password) {
+    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+    const [adminResult] = await db.query(sqlCheckAdmin, [username]);
+
+    if (!adminResult || adminResult.length === 0) {
+        throw new Error('Invalid admin credentials');
+    }
+
+    const admin = adminResult[0];
+    const match = await bcrypt.compare(password, admin.password);
+    if (!match) {
+        throw new Error('Invalid admin credentials');
+    }
+
+    return admin;
+}
 
 // Route to add a book
 router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
-    const { bookTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['bookFile'][0].filename;
-    const imageName = req.files['bookImage'][0].filename;
+    const { bookTitle, username, password } = req.body;
+    const bookFile = req.files['bookFile'][0];
+    const bookImage = req.files['bookImage'][0];
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+    try {
+        await verifyAdmin(username, password);
 
         const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
-        db.query(sqlCheckBook, [bookTitle], async (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Book with this title already exists' });
-            }
+        const [bookExists] = await db.query(sqlCheckBook, [bookTitle]);
+        if (bookExists.length > 0) {
+            return res.status(400).json({ message: 'Book with this title already exists' });
+        }
 
-            try {
-                const bookFile = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
-                const bookImage = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
+        const fileBuffer = fs.readFileSync(bookFile.path);
+        const imageBuffer = fs.readFileSync(bookImage.path);
 
-                const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertBook, [bookTitle, bookFile.id, dateAdded, bookImage.id], (err) => {
-                    if (err) throw err;
-                    res.status(201).json({ message: 'Book added successfully!' });
-                });
-            } catch (error) {
-                res.status(500).json({ message: 'Failed to upload book to OneDrive' });
-            }
-        });
-    });
+        const bookFileResponse = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
+        const bookImageResponse = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
+
+        const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+        await db.query(sqlInsertBook, [bookTitle, bookFileResponse.id, dateAdded, bookImageResponse.id]);
+
+        res.status(201).json({ message: 'Book added successfully!' });
+    } catch (error) {
+        console.error('Error adding book:', error);
+        res.status(500).json({ message: error.message || 'Failed to add book' });
+    }
 });
 
 // Route to add a paper
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
-    const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['paperFile'][0].filename;
-    const imageName = req.files['paperImage'][0].filename;
+    const { paperTitle, username, password } = req.body;
+    const paperFile = req.files['paperFile'][0];
+    const paperImage = req.files['paperImage'][0];
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+    try {
+        await verifyAdmin(username, password);
 
         const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
-        db.query(sqlCheckPaper, [paperTitle], async (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Paper with this title already exists' });
-            }
+        const [paperExists] = await db.query(sqlCheckPaper, [paperTitle]);
+        if (paperExists.length > 0) {
+            return res.status(400).json({ message: 'Paper with this title already exists' });
+        }
 
-            try {
-                const paperFile = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
-                const paperImage = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
+        const fileBuffer = fs.readFileSync(paperFile.path);
+        const imageBuffer = fs.readFileSync(paperImage.path);
 
-                const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertPaper, [paperTitle, paperFile.id, dateAdded, paperImage.id], (err) => {
-                    if (err) throw err;
-                    res.status(201).json({ message: 'Paper added successfully!' });
-                });
-            } catch (error) {
-                res.status(500).json({ message: 'Failed to upload paper to OneDrive' });
-            }
-        });
-    });
+        const paperFileResponse = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
+        const paperImageResponse = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
+
+        const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+        await db.query(sqlInsertPaper, [paperTitle, paperFileResponse.id, dateAdded, paperImageResponse.id]);
+
+        res.status(201).json({ message: 'Paper added successfully!' });
+    } catch (error) {
+        console.error('Error adding paper:', error);
+        res.status(500).json({ message: error.message || 'Failed to add paper' });
+    }
 });
 
 // Route to get all users
-router.get('/getUsers', (req, res) => {
-    const sql = 'SELECT id, fullname, email, created_at FROM users';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error fetching users:', err);
-            return res.status(500).json({ message: 'Error fetching users' });
-        }
+router.get('/getUsers', async (req, res) => {
+    try {
+        const sql = 'SELECT id, fullname, email, created_at FROM users';
+        const results = await db.query(sql);
         res.json(results);
-    });
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).json({ message: 'Error fetching users' });
+    }
 });
 
 // Route to remove a user
 router.delete('/removeUser/:id', async (req, res) => {
     const userId = req.params.id;
-    const { username, password } = req.body; // Expecting username and password in the request body
+    const { username, password } = req.body;
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+    try {
+        await verifyAdmin(username, password);
 
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // If admin is valid, proceed to delete the user
         const sqlDeleteUser = 'DELETE FROM users WHERE id = ?';
-        db.query(sqlDeleteUser, [userId], (err) => {
-            if (err) {
-                console.error('Error removing user:', err);
-                return res.status(500).json({ message: 'Error removing user' });
-            }
-            res.json({ message: 'User removed successfully!' });
-        });
-    });
+        await db.query(sqlDeleteUser, [userId]);
+
+        res.json({ message: 'User removed successfully!' });
+    } catch (error) {
+        console.error('Error removing user:', error);
+        res.status(500).json({ message: error.message || 'Error removing user' });
+    }
 });
 
 // Route to remove a book
@@ -249,36 +217,17 @@ router.delete('/removeBook/:id', async (req, res) => {
     const bookId = req.params.id;
     const { username, password } = req.body;
 
-    // Log incoming request details
-    console.log(`Removing book with ID: ${bookId}, Username: ${username}`);
+    try {
+        await verifyAdmin(username, password);
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+        const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
+        await db.query(sqlDeleteBook, [bookId]);
 
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // If admin is valid, proceed to delete the book
-        const sqlDeleteBook = 'DELETE FROM books WHERE id = ? ';
-        db.query(sqlDeleteBook, [bookId], (err, result) => {
-            if (err) {
-                console.error('Error removing book:', err);
-                return res.status(500).json({ message: 'Error removing book' });
-            }
-            console.log(`Book with ID ${bookId} removed successfully.`);
-            res.json({ message: 'Book removed successfully!' });
-        });
-    });
+        res.json({ message: 'Book removed successfully!' });
+    } catch (error) {
+        console.error('Error removing book:', error);
+        res.status(500).json({ message: error.message || 'Error removing book' });
+    }
 });
 
 // Route to remove a paper
@@ -286,36 +235,17 @@ router.delete('/removePaper/:id', async (req, res) => {
     const paperId = req.params.id;
     const { username, password } = req.body;
 
-    // Log incoming request details
-    console.log(`Removing paper with ID: ${paperId}, Username: ${username}`);
+    try {
+        await verifyAdmin(username, password);
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // If admin is valid, proceed to delete the paper
         const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
-        db.query(sqlDeletePaper, [paperId], (err, result) => {
-            if (err) {
-                console.error('Error removing paper:', err);
-                return res.status(500).json({ message: 'Error removing paper' });
-            }
-            console.log(`Paper with ID ${paperId} removed successfully.`);
-            res.json({ message: 'Paper removed successfully!' });
-        });
-    });
+        await db.query(sqlDeletePaper, [paperId]);
+
+        res.json({ message: 'Paper removed successfully!' });
+    } catch (error) {
+        console.error('Error removing paper:', error);
+        res.status(500).json({ message: error.message || 'Error removing paper' });
+    }
 });
 
 module.exports = router;
