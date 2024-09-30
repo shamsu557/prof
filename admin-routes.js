@@ -12,6 +12,9 @@ const ONEDRIVE_API_BASE = 'https://graph.microsoft.com/v1.0/me/drive';
 const ONE_DRIVE_UPLOAD_URL = `${ONEDRIVE_API_BASE}/root:/prof-uploads/`;
 const ONEDRIVE_ACCESS_TOKEN = 'EwB4A8l6BAAUbDba3x2OMJElkF7gJ4z/VbCPEz0AAbzCXXe3fDU4s44AOMTfrkeL4qgrfJFNdqekR7/xNubPcUdw3ji63iy6+V0ea8MTZS2E2BJ4YxELCDr0ZtLCmVpKPvaIZgFuEFRDr59oPJ5eDwhCUhKnaTas34UCMYL4huOFScAAAr7y1DDprwR4mQiontJCjNPhtGiluCuWLsD548ytZcHQq18fYlD7C4eraLEo3Dz5gNsXPRhsxr76f/t7LNAqUTjGWcXFia9Zl9ltx2ng6omUvkFqPr98JyRs3DeFuvNnXYAzPG4npXMlWvERUY0UqfnRzEiW9AwckUT5ptcD8yCd5nAq+Ox6oiDwJ/izFfOoG/Y/r1XMVFqHpSIQZgAAEARYQ5Do71WnP6OyggfzTtBAAgGBuRePl0GbMmK9yobXZV0KwcEnso/32G0m99oyyra1IwEEsW9eha2gcxG+gGMbS+dvmm/pP0fZjodOi5z+jn7y/nJh00X1phNP9UrrpuqBYzZ7T4rcRuXBVb9zdyT5X75baC0nXtjRaF/UHif7YKC2v4siMzDGkGluhRg9s6MVyPDIL3Nyn4PHMuPb217K1PxRg/Lv2/d1OHEVoUMBl5YkNnH/4FUwlMRAclNqy1cgl66KVit8V6GyeLiPjHtj4ZlRmiffAHClzBnU1hc90gJ0pfh+6FsP3USVrpC76P113jr6YLFYKN8B3R1ROQdt3LmHOVRYLucySZoPBM5/BnO+F4w6+YLvV5P9NezYdeHQ1+i17VcIREC2WWueNwOZrQl5Da20CxYPDBR3SGZk/5y4l9LrcL5YAgAI+NzLJdGsqON2P7mdMCfZHHeGpVKcr++vfZrHTpAjrt3SOQeWUhKm6gUR02XHW3xL3JEuOJpa1b0A4pJB1BONzxVMZ1xb7cRvBJkbchKfH39Zbdol4uVxIWqgKtAUnQdhURjJfWz2jOukp3Cvlb1Bt9LOtsqFWtGSCgemdzbrYp4F0MOfUhgd09ernTq+Nn7i/Y5/IZ/zHERmUvnZKTIWHUUyxWrTJXfL65v8wVWu+vQCcEynoOibfm3h+yYsMsCuGsTIzTW7Qrk9eRhjubO48g/nNvBu/2+lZ/9eT8UVXXpB5dtUUfBFhKAxTOZ1DkR8E3oYEFVpiiEEIeJO1MpwDBIP5g4qjYAC'; // Replace with your access token
 
+
+
+
 // Helper function to upload file to OneDrive
 async function uploadToOneDrive(fileName, fileBuffer, folderName) {
     try {
@@ -30,15 +33,10 @@ async function uploadToOneDrive(fileName, fileBuffer, folderName) {
     }
 }
 
-
-
-// Serve static files (HTML, CSS, JS)
-router.use(express.static(path.join(__dirname))); // Serving static files
-
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = path.join(__dirname); // Ensure this folder exists
+        const dir = path.join(__dirname, 'uploads'); // Ensure this folder exists
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }
@@ -103,11 +101,13 @@ router.get('/getPapers', (req, res) => {
     });
 });
 
+
+
 // Route to add a book
 router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
-    const { bookTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['bookFile'][0].filename;
-    const imageName = req.files['bookImage'][0].filename;
+    const { bookTitle, username, password } = req.body;
+    const bookFile = req.files['bookFile'][0];
+    const bookImage = req.files['bookImage'][0];
     const dateAdded = new Date();
 
     // Check if admin exists and verify password
@@ -135,11 +135,15 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
             }
 
             try {
-                const bookFile = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
-                const bookImage = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
+                // Read files into buffers
+                const fileBuffer = fs.readFileSync(bookFile.path);
+                const imageBuffer = fs.readFileSync(bookImage.path);
+
+                const uploadedBookFile = await uploadToOneDrive(`${bookTitle}.pdf`, fileBuffer, 'Books');
+                const uploadedBookImage = await uploadToOneDrive(`${bookTitle}-image.jpg`, imageBuffer, 'BookImages');
 
                 const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertBook, [bookTitle, bookFile.id, dateAdded, bookImage.id], (err) => {
+                db.query(sqlInsertBook, [bookTitle, uploadedBookFile.id, dateAdded, uploadedBookImage.id], (err) => {
                     if (err) throw err;
                     res.status(201).json({ message: 'Book added successfully!' });
                 });
@@ -149,11 +153,12 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
         });
     });
 });
+
 // Route to add a paper
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
-    const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['paperFile'][0].filename;
-    const imageName = req.files['paperImage'][0].filename;
+    const { paperTitle, username, password } = req.body;
+    const paperFile = req.files['paperFile'][0];
+    const paperImage = req.files['paperImage'][0];
     const dateAdded = new Date();
 
     // Check if admin exists and verify password
@@ -181,11 +186,15 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
             }
 
             try {
-                const paperFile = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
-                const paperImage = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
+                // Read files into buffers
+                const fileBuffer = fs.readFileSync(paperFile.path);
+                const imageBuffer = fs.readFileSync(paperImage.path);
+
+                const uploadedPaperFile = await uploadToOneDrive(`${paperTitle}.pdf`, fileBuffer, 'Papers');
+                const uploadedPaperImage = await uploadToOneDrive(`${paperTitle}-image.jpg`, imageBuffer, 'PaperImages');
 
                 const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertPaper, [paperTitle, paperFile.id, dateAdded, paperImage.id], (err) => {
+                db.query(sqlInsertPaper, [paperTitle, uploadedPaperFile.id, dateAdded, uploadedPaperImage.id], (err) => {
                     if (err) throw err;
                     res.status(201).json({ message: 'Paper added successfully!' });
                 });
@@ -195,6 +204,7 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
         });
     });
 });
+
 
 // Route to get all users
 router.get('/getUsers', (req, res) => {
