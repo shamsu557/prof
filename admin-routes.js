@@ -6,17 +6,19 @@ const router = express.Router();
 const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
 
+
+
 // Serve static files (HTML, CSS, JS)
 router.use(express.static(path.join(__dirname))); // Serving static files
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = path.join(__dirname); // Ensure this folder exists
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+        const uploadDir = path.join(__dirname, 'prof-uploads'); // Folder where files will be uploaded
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
         }
-        cb(null, dir);
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to filename
@@ -24,6 +26,44 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// Route to handle file upload
+router.post('/upload', upload.single('file'), (req, res) => {
+    if (req.file) {
+        const filePath = path.join(__dirname, 'prof-uploads', req.file.filename);
+        const destPath = path.join(__dirname, 'shamsu557', 'prof', req.file.filename); // Destination path in shamsu557/prof
+
+        // Move the uploaded file to the shamsu557/prof folder
+        fs.rename(filePath, destPath, (err) => {
+            if (err) {
+                console.error('Error moving file:', err);
+                return res.status(500).send('Failed to move file');
+            }
+
+            // Git add, commit, and push to the repository
+            const gitCommands = `
+                cd ${path.join(__dirname, 'shamsu557', 'prof')}
+                git add ${req.file.filename}
+                git commit -m "Added ${req.file.filename}"
+                git push https://<GITHUB_USERNAME>:<GITHUB_TOKEN>@github.com/shamsu557/prof.git main
+            `;
+
+            // Execute git commands
+            exec(gitCommands, (err, stdout, stderr) => {
+                if (err) {
+                    console.error('Error pushing to GitHub:', err);
+                    return res.status(500).send('Failed to push file to GitHub');
+                }
+
+                console.log('Git push successful:', stdout);
+                res.status(200).send('File uploaded and pushed to GitHub successfully');
+            });
+        });
+    } else {
+        res.status(400).send('No file uploaded');
+    }
+});
+
 
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
