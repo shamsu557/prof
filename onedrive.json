@@ -1,0 +1,23 @@
+{
+  "clientId": "55d85c04-778f-4e52-9f5d-5079b7b12d35", 
+  "clientSecret": "57bfbedf-c735-4fe6-a7f3-94ba8893e4c2", 
+  "tenantId": "a8d3019e-aba7-4627-886e-fcd4128c8656", 
+  "accessToken": "EwB4A8l6BAAUbDba3x2OMJElkF7gJ4z/VbCPEz0AAbzCXXe3fDU4s44AOMTfrkeL4qgrfJFNdqekR7/xNubPcUdw3ji63iy6+V0ea8MTZS2E2BJ4YxELCDr0ZtLCmVpKPvaIZgFuEFRDr59oPJ5eDwhCUhKnaTas34UCMYL4huOFScAAAr7y1DDprwR4mQiontJCjNPhtGiluCuWLsD548ytZcHQq18fYlD7C4eraLEo3Dz5gNsXPRhsxr76f/t7LNAqUTjGWcXFia9Zl9ltx2ng6omUvkFqPr98JyRs3DeFuvNnXYAzPG4npXMlWvERUY0UqfnRzEiW9AwckUT5ptcD8yCd5nAq+Ox6oiDwJ/izFfOoG/Y/r1XMVFqHpSIQZgAAEARYQ5Do71WnP6OyggfzTtBAAgGBuRePl0GbMmK9yobXZV0KwcEnso/32G0m99oyyra1IwEEsW9eha2gcxG+gGMbS+dvmm/pP0fZjodOi5z+jn7y/nJh00X1phNP9UrrpuqBYzZ7T4rcRuXBVb9zdyT5X75baC0nXtjRaF/UHif7YKC2v4siMzDGkGluhRg9s6MVyPDIL3Nyn4PHMuPb217K1PxRg/Lv2/d1OHEVoUMBl5YkNnH/4FUwlMRAclNqy1cgl66KVit8V6GyeLiPjHtj4ZlRmiffAHClzBnU1hc90gJ0pfh+6FsP3USVrpC76P113jr6YLFYKN8B3R1ROQdt3LmHOVRYLucySZoPBM5/BnO+F4w6+YLvV5P9NezYdeHQ1+i17VcIREC2WWueNwOZrQl5Da20CxYPDBR3SGZk/5y4l9LrcL5YAgAI+NzLJdGsqON2P7mdMCfZHHeGpVKcr++vfZrHTpAjrt3SOQeWUhKm6gUR02XHW3xL3JEuOJpa1b0A4pJB1BONzxVMZ1xb7cRvBJkbchKfH39Zbdol4uVxIWqgKtAUnQdhURjJfWz2jOukp3Cvlb1Bt9LOtsqFWtGSCgemdzbrYp4F0MOfUhgd09ernTq+Nn7i/Y5/IZ/zHERmUvnZKTIWHUUyxWrTJXfL65v8wVWu+vQCcEynoOibfm3h+yYsMsCuGsTIzTW7Qrk9eRhjubO48g/nNvBu/2+lZ/9eT8UVXXpB5dtUUfBFhKAxTOZ1DkR8E3oYEFVpiiEEIeJO1MpwDBIP5g4qjYAC",
+  "permissions": {
+    "scopes": [
+      "Files.ReadWrite",
+      "Files.ReadWrite.All",
+      "Files.Read",
+      "Files.Read.All"
+    ],
+    "consent": "user"
+  },
+  "supportedFileTypes": [
+    "image/png",
+    "image/jpeg",
+    "image/jfif",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ]
+}
