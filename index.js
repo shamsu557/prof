@@ -7,8 +7,6 @@ const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
 const MySQLStore = require('express-mysql-session')(session); // Import MySQL session store
-const resourceRoutes = require('./path/to/this/router/file');
-app.use('/api', resourceRoutes);
 
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
