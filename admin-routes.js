@@ -110,8 +110,36 @@ async function verifyAdminCredentials(username, password) {
     });
 }
 
-// Function to upload files to OneDrive
-async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
+// Route to redirect to Microsoft login
+router.get('/auth/login', (req, res) => {
+    const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=offline_access%20https://graph.microsoft.com/.default`;
+    res.redirect(authUrl);
+});
+
+// Route to handle the callback from Microsoft
+router.get('/auth/callback', async (req, res) => {
+    const { code } = req.query;
+
+    try {
+        const tokenResponse = await axios.post(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code: code,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code',
+        }));
+
+        const accessToken = tokenResponse.data.access_token;
+        req.session.accessToken = accessToken; // Store the access token in session
+        res.redirect('/admin-dashboard'); // Redirect to your admin dashboard
+    } catch (error) {
+        console.error('Error getting access token:', error.response?.data || error.message);
+        res.status(500).send('Authentication failed');
+    }
+});
+
+// Function to upload files to OneDrive with user-specific access token
+async function uploadToOneDrive(fileBuffer, fileName, accessToken) {
     const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
 
     try {
@@ -128,43 +156,25 @@ async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
     }
 }
 
-// Route to add a book and upload it to OneDrive
-router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
-    const { bookTitle, username, password } = req.body;
-    const bookFile = req.files['bookFile']?.[0];
-    const bookImage = req.files['bookImage']?.[0];
-    const dateAdded = new Date();
+// Example route for file upload
+router.post('/upload', async (req, res) => {
+    const accessToken = req.session.accessToken; // Get the access token from session
 
-    if (!bookFile || !bookImage) {
-        return res.status(400).json({ message: 'Both book file and image are required' });
+    if (!accessToken) {
+        return res.status(401).send('Unauthorized: No access token available. Please log in.');
     }
+
+    const bookFile = req.files.bookFile; // Ensure you have file upload middleware (like multer) set up
 
     try {
-        await verifyAdminCredentials(username, password);
-
-        const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
-        db.query(sqlCheckBook, [bookTitle], async (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Book with this title already exists' });
-            }
-
-            const accessToken = await getAccessToken();
-
-            const uploadedBookFile = await uploadToOneDrive(accessToken, bookFile.buffer, bookFile.originalname);
-            const uploadedBookImage = await uploadToOneDrive(accessToken, bookImage.buffer, bookImage.originalname);
-
-            const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-            db.query(sqlInsertBook, [bookTitle, uploadedBookFile.id, dateAdded, uploadedBookImage.id], (err) => {
-                if (err) throw err;
-                res.status(201).json({ message: 'Book added successfully!', file: uploadedBookFile, image: uploadedBookImage });
-            });
-        });
+        const uploadedBookFile = await uploadToOneDrive(bookFile.data, bookFile.name, accessToken);
+        res.status(200).send(`File uploaded successfully: ${uploadedBookFile.id}`);
     } catch (error) {
-        console.error('Error processing book upload:', error);
-        res.status(500).json({ message: error.message || 'Error uploading book to OneDrive' });
+        console.error('Upload failed:', error);
+        res.status(500).send('Failed to upload file to OneDrive');
     }
 });
+
 
 // Route to add a paper and upload it to OneDrive
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
