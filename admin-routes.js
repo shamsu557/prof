@@ -38,8 +38,6 @@ async function getAccessToken() {
     }
 }
 
-
-
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
     const sqlQueries = {
@@ -115,19 +113,20 @@ router.post('/upload', async (req, res) => {
     const accessToken = req.session.accessToken; // Get the access token from session
 
     if (!accessToken) {
-        return res.status(401).send('Unauthorized: No access token available. Please log in.');
+        return res.status(401).json({ message: 'Unauthorized: No access token available. Please log in.' });
     }
 
     const bookFile = req.files.bookFile; // Ensure you have file upload middleware (like multer) set up
 
     try {
         const uploadedBookFile = await uploadToOneDrive(bookFile.data, bookFile.name, accessToken);
-        res.status(200).send({ message: 'File uploaded successfully', id: uploadedBookFile.id });
+        res.status(200).json({ message: 'File uploaded successfully', id: uploadedBookFile.id });
     } catch (error) {
         console.error('Upload failed:', error);
-        res.status(500).send('Failed to upload file to OneDrive');
+        res.status(500).json({ message: 'Failed to upload file to OneDrive' });
     }
 });
+
 async function uploadToOneDrive(fileBuffer, fileName, accessToken) {
     const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
 
@@ -168,12 +167,15 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
 
             const accessToken = await getAccessToken();
 
-            const uploadedPaperFile = await uploadToOneDrive(accessToken, paperFile.buffer, paperFile.originalname);
-            const uploadedPaperImage = await uploadToOneDrive(accessToken, paperImage.buffer, paperImage.originalname);
+            const uploadedPaperFile = await uploadToOneDrive(paperFile.buffer, paperFile.originalname, accessToken);
+            const uploadedPaperImage = await uploadToOneDrive(paperImage.buffer, paperImage.originalname, accessToken);
 
             const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
             db.query(sqlInsertPaper, [paperTitle, uploadedPaperFile.id, dateAdded, uploadedPaperImage.id], (err) => {
-                if (err) throw err;
+                if (err) {
+                    console.error('Error inserting paper into database:', err);
+                    return res.status(500).json({ message: 'Error inserting paper into database' });
+                }
                 res.status(201).json({ message: 'Paper added successfully!', file: uploadedPaperFile, image: uploadedPaperImage });
             });
         });
@@ -214,61 +216,6 @@ router.delete('/removeUser/:id', async (req, res) => {
         console.error('Error removing user:', error);
         res.status(500).json({ message: error.message || 'Error removing user' });
     }
-});
-
-// Route to remove a book
-router.delete('/removeBook/:id', async (req, res) => {
-    const bookId = req.params.id;
-    const { username, password } = req.body;
-
-    try {
-        await verifyAdminCredentials(username, password);
-
-        const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
-        db.query(sqlDeleteBook, [bookId], (err) => {
-            if (err) {
-                console.error('Error removing book:', err);
-                return res.status(500).json({ message: 'Error removing book' });
-            }
-            res.json({ message: 'Book removed successfully' });
-        });
-    } catch (error) {
-        console.error('Error removing book:', error);
-        res.status(500).json({ message: error.message || 'Error removing book' });
-    }
-});
-
-// Route to remove a paper
-router.delete('/removePaper/:id', async (req, res) => {
-    const paperId = req.params.id;
-    const { username, password } = req.body;
-
-    try {
-        await verifyAdminCredentials(username, password);
-
-        const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
-        db.query(sqlDeletePaper, [paperId], (err) => {
-            if (err) {
-                console.error('Error removing paper:', err);
-                return res.status(500).json({ message: 'Error removing paper' });
-            }
-            res.json({ message: 'Paper removed successfully' });
-        });
-    } catch (error) {
-        console.error('Error removing paper:', error);
-        res.status(500).json({ message: error.message || 'Error removing paper' });
-    }
-});
-
-// Route to log out
-router.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Error during logout:', err);
-            return res.status(500).json({ message: 'Error logging out' });
-        }
-        res.json({ message: 'Successfully logged out' });
-    });
 });
 
 module.exports = router;
