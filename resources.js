@@ -66,28 +66,22 @@ document.getElementById('addBookForm').addEventListener('submit', async function
     formData.append('username', username);
     formData.append('password', password);
 
-    // Check if user wants to upload to OneDrive
-    const uploadToOnedrive = confirm("Do you want to upload this book to OneDrive?");
-    if (uploadToOnedrive) {
-        await uploadToOneDrive(formData);
-    } else {
-        try {
-            const response = await fetch('/admin/addBook', {
-                method: 'POST',
-                body: formData
-            });
+    try {
+        const response = await fetch('/admin/addBook', {
+            method: 'POST',
+            body: formData
+        });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to upload book');
-            }
-
-            alert('Book added successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error adding book:', error);
-            alert('Error adding book: ' + error.message);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload book');
         }
+
+        alert('Book added successfully!');
+        fetchResources(); // Refresh the list
+    } catch (error) {
+        console.error('Error adding book:', error);
+        alert('Error adding book: ' + error.message);
     }
 });
 
@@ -104,50 +98,24 @@ document.getElementById('addPaperForm').addEventListener('submit', async functio
     formData.append('username', username);
     formData.append('password', password);
 
-    // Check if user wants to upload to OneDrive
-    const uploadToOnedrive = confirm("Do you want to upload this paper to OneDrive?");
-    if (uploadToOnedrive) {
-        await uploadToOneDrive(formData);
-    } else {
-        try {
-            const response = await fetch('/admin/addPaper', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to upload paper');
-            }
-
-            alert('Paper added successfully!');
-            fetchResources(); // Refresh the list
-        } catch (error) {
-            console.error('Error adding paper:', error);
-            alert('Error adding paper: ' + error.message);
-        }
-    }
-});
-
-// Function to handle OneDrive upload
-async function uploadToOneDrive(formData) {
     try {
-        const response = await fetch('/admin/uploadToOneDrive', {
+        const response = await fetch('/admin/addPaper', {
             method: 'POST',
             body: formData
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to upload to OneDrive');
+            throw new Error(errorData.message || 'Failed to upload paper');
         }
 
-        alert('File uploaded to OneDrive successfully!');
+        alert('Paper added successfully!');
+        fetchResources(); // Refresh the list
     } catch (error) {
-        console.error('Error uploading to OneDrive:', error);
-        alert('Error uploading to OneDrive: ' + error.message);
+        console.error('Error adding paper:', error);
+        alert('Error adding paper: ' + error.message);
     }
-}
+});
 
 // Confirm and remove book
 async function confirmRemoveBook(bookId, bookTitle) {
@@ -222,19 +190,18 @@ function logout() {
         .then(() => window.location.href = '/admin-login.html')
         .catch(err => console.error('Logout failed', err));
 }
-
 // Back to top button functionality
-window.onscroll = function() { scrollFunction() };
+window.onscroll = function() {scrollFunction()};
+  
+  function scrollFunction() {
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+          document.getElementById("myBtn").style.display = "block";
+      } else {
+          document.getElementById("myBtn").style.display = "none";
+      }
+  }
 
-function scrollFunction() {
-    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        document.getElementById("myBtn").style.display = "block";
-    } else {
-        document.getElementById("myBtn").style.display = "none";
-    }
-}
-
-function topFunction() {
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-}
+  function topFunction() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+  }
