@@ -63,16 +63,16 @@ app.get('/signup', (req, res) => {
 
 // Handle sign up
 app.post('/signup', (req, res) => {
-  const { fullname, email, phone_number, password,securityQuestion, securityAnswer} = req.body;
+  const { fullname, email, phone_number, password } = req.body;
 
-  // First, check if the email or username already exists
+  // First, check if the email already exists
   db.query('SELECT email FROM users WHERE email = ? ', [email], (err, results) => {
     if (err) {
       console.error('Error querying database for signup:', err);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
 
-    // Check if the email or username is already taken
+    // Check if the email is already taken
     if (results.length > 0) {
       const existingUser = results[0];
       if (existingUser.email === email) {
@@ -88,8 +88,8 @@ app.post('/signup', (req, res) => {
       }
 
       db.query(
-        'INSERT INTO users (fullname, email, phone_number, password, securityQuestion, securityAnswer) VALUES (?, ?, ?,?,?, ?)', 
-        [fullname,email, phone_number, hashedPassword,securityQuestion, securityAnswer], 
+        'INSERT INTO users (fullname, email, phone_number, password) VALUES (?, ?, ?, ?)', 
+        [fullname, email, phone_number, hashedPassword], 
         (err) => {
           if (err) {
             console.error('Error inserting user into database:', err);
@@ -101,8 +101,6 @@ app.post('/signup', (req, res) => {
     });
   });
 });
-
-
 
 // Admin creation login route (only allows Admin001 with 'default' password)
 app.post('/admin-creation-login', (req, res) => {
