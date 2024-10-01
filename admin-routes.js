@@ -6,6 +6,12 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const mime = require('mime');
 const request = require('request');
+const multer = require('multer');
+const upload = multer({ dest: 'prof-uploads/' });
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.send('File uploaded successfully');
+});
 
 // Function to upload a file to OneDrive
 function uploadToOneDrive(filePath, folderName, fileName, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token, callback) {
