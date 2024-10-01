@@ -50,6 +50,17 @@
             }
         }
         
+        //hover about professor 
+        const image = document.querySelector('.fixed-image');
+  const hoverMessage = document.getElementById('hoverMessage');
+
+  image.addEventListener('mouseenter', function() {
+    hoverMessage.style.display = 'block';
+  });
+
+  image.addEventListener('mouseleave', function() {
+    hoverMessage.style.display = 'none';
+  });
         // Filter resources based on search input
         function filterResources() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
