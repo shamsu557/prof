@@ -1,55 +1,60 @@
 const express = require('express');
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const axios = require('axios'); // For making API calls
 const router = express.Router();
 const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const mime = require('mime');
-const request = require('request');
-const multer = require('multer');
-const upload = multer({ dest: 'prof-uploads/' });
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    res.send('File uploaded successfully');
-});
+const clientId = '55d85c04-778f-4e52-9f5d-5079b7b12d35'; // From Microsoft Azure
+const clientSecret = '57bfbedf-c735-4fe6-a7f3-94ba8893e4c2'; // From Microsoft Azure
+const tenantId = 'a8d3019e-aba7-4627-886e-fcd4128c8656'; // From Microsoft Azure
+const redirectUri = 'https://prof-publications.onrender.com/auth/callback'; // Your redirect URI
+const folderName = 'prof-upload'; // OneDrive folder
 
-// Function to upload a file to OneDrive
-function uploadToOneDrive(filePath, folderName, fileName, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token, callback) {
-    request.post({
-        url: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
-        form: {
-            redirect_uri: 'http://localhost/dashboard',
-            client_id: '55d85c04-778f-4e52-9f5d-5079b7b12d35',
-            client_secret: '57bfbedf-c735-4fe6-a7f3-94ba8893e4c2',
-            refresh_token: 'EwB4A8l6BAAUbDba3x2OMJElkF7gJ4z/VbCPEz0AAbzCXXe3fDU4s44AOMTfrkeL4qgrfJFNdqekR7/xNubPcUdw3ji63iy6+V0ea8MTZS2E2BJ4YxELCDr0ZtLCmVpKPvaIZgFuEFRDr59oPJ5eDwhCUhKnaTas34UCMYL4huOFScAAAr7y1DDprwR4mQiontJCjNPhtGiluCuWLsD548ytZcHQq18fYlD7C4eraLEo3Dz5gNsXPRhsxr76f/t7LNAqUTjGWcXFia9Zl9ltx2ng6omUvkFqPr98JyRs3DeFuvNnXYAzPG4npXMlWvERUY0UqfnRzEiW9AwckUT5ptcD8yCd5nAq+Ox6oiDwJ/izFfOoG/Y/r1XMVFqHpSIQZgAAEARYQ5Do71WnP6OyggfzTtBAAgGBuRePl0GbMmK9yobXZV0KwcEnso/32G0m99oyyra1IwEEsW9eha2gcxG+gGMbS+dvmm/pP0fZjodOi5z+jn7y/nJh00X1phNP9UrrpuqBYzZ7T4rcRuXBVb9zdyT5X75baC0nXtjRaF/UHif7YKC2v4siMzDGkGluhRg9s6MVyPDIL3Nyn4PHMuPb217K1PxRg/Lv2/d1OHEVoUMBl5YkNnH/4FUwlMRAclNqy1cgl66KVit8V6GyeLiPjHtj4ZlRmiffAHClzBnU1hc90gJ0pfh+6FsP3USVrpC76P113jr6YLFYKN8B3R1ROQdt3LmHOVRYLucySZoPBM5/BnO+F4w6+YLvV5P9NezYdeHQ1+i17VcIREC2WWueNwOZrQl5Da20CxYPDBR3SGZk/5y4l9LrcL5YAgAI+NzLJdGsqON2P7mdMCfZHHeGpVKcr++vfZrHTpAjrt3SOQeWUhKm6gUR02XHW3xL3JEuOJpa1b0A4pJB1BONzxVMZ1xb7cRvBJkbchKfH39Zbdol4uVxIWqgKtAUnQdhURjJfWz2jOukp3Cvlb1Bt9LOtsqFWtGSCgemdzbrYp4F0MOfUhgd09ernTq+Nn7i/Y5/IZ/zHERmUvnZKTIWHUUyxWrTJXfL65v8wVWu+vQCcEynoOibfm3h+yYsMsCuGsTIzTW7Qrk9eRhjubO48g/nNvBu/2+lZ/9eT8UVXXpB5dtUUfBFhKAxTOZ1DkR8E3oYEFVpiiEEIeJO1MpwDBIP5g4qjYAC',
-            grant_type: 'refresh_token'
-        }
-    }, function(error, response, body) {
-        if (error) {
-            return callback(error);
-        }
-        const accessToken = JSON.parse(body).access_token;
+// Serve static files (HTML, CSS, JS)
+router.use(express.static(path.join(__dirname)));
 
-        fs.readFile(filePath, function(err, fileData) {
-            if (err) {
-                return callback(err);
+// Multer setup for handling file uploads (before sending them to OneDrive)
+const storage = multer.memoryStorage(); // Store files in memory to send them to OneDrive
+const upload = multer({ storage: storage });
+
+// Function to get access token for OneDrive API
+async function getAccessToken() {
+    const tokenEndpoint = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+
+    const params = new URLSearchParams();
+    params.append('client_id', clientId);
+    params.append('scope', 'https://graph.microsoft.com/.default');
+    params.append('client_secret', clientSecret);
+    params.append('grant_type', 'client_credentials');
+
+    try {
+        const response = await axios.post(tokenEndpoint, params);
+        return response.data.access_token;
+    } catch (error) {
+        console.error('Error fetching access token:', error.response.data);
+        throw new Error('Failed to get access token');
+    }
+}
+
+// Function to upload files to OneDrive
+async function uploadToOneDrive(accessToken, fileBuffer, fileName, folderName) {
+    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
+
+    try {
+        const response = await axios.put(uploadEndpoint, fileBuffer, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/octet-stream'
             }
-
-            request.put({
-                url: 'https://graph.microsoft.com/v1.0/drive/root:/' + folderName + '/' + fileName + ':/content',
-                headers: {
-                    'Authorization': 'Bearer ' + accessToken,
-                    'Content-Type': mime.getType(filePath),
-                },
-                body: fileData
-            }, function(err, response, body) {
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, body);
-            });
         });
-    });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading file to OneDrive:', error.response.data);
+        throw new Error('Failed to upload file to OneDrive');
+    }
 }
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
@@ -103,98 +108,100 @@ router.get('/getPapers', (req, res) => {
     });
 });
 
-// Route to add a book
+// Route to add a book and upload it to OneDrive
 router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
-    const { bookTitle, username, password, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token } = req.body; // Expecting OneDrive tokens in the request body
-    const fileName = req.files['bookFile'][0].filename;
-    const imageName = req.files['bookImage'][0].filename;
+    const { bookTitle, username, password } = req.body;
+    const bookFile = req.files['bookFile'][0];
+    const bookImage = req.files['bookImage'][0];
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-        const admin = adminResult[0];
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // Check if the book title already exists in the database
-        const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
-        db.query(sqlCheckBook, [bookTitle], (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Book with this title already exists' });
+    try {
+        // Check if admin exists and verify password
+        const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+        db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+            if (err || adminResult.length === 0) {
+                return res.status(403).json({ message: 'Invalid admin credentials' });
             }
 
-            // If no duplicate, proceed to upload the book to OneDrive
-            const filePath = path.join(__dirname, fileName);
-            const onedrive_folder = 'prof-uploads'; // OneDrive folder to store books
-            uploadToOneDrive(filePath, onedrive_folder, fileName, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token, (err, onedriveResponse) => {
-                if (err) {
-                    return res.status(500).json({ message: 'Error uploading to OneDrive' });
+            const admin = adminResult[0];
+            const match = await bcrypt.compare(password, admin.password);
+            if (!match) {
+                return res.status(403).json({ message: 'Invalid admin credentials' });
+            }
+
+            // Check if the book title already exists
+            const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
+            db.query(sqlCheckBook, [bookTitle], async (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                    return res.status(400).json({ message: 'Book with this title already exists' });
                 }
 
-                // Proceed to add the book in the database
+                // Get access token for OneDrive
+                const accessToken = await getAccessToken();
+
+                // Upload book file and image to OneDrive
+                const uploadedBookFile = await uploadToOneDrive(accessToken, bookFile.buffer, bookFile.originalname, folderName);
+                const uploadedBookImage = await uploadToOneDrive(accessToken, bookImage.buffer, bookImage.originalname, folderName);
+
+                // Insert the book into the database
                 const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertBook, [bookTitle, fileName, dateAdded, imageName], (err) => {
+                db.query(sqlInsertBook, [bookTitle, uploadedBookFile.id, dateAdded, uploadedBookImage.id], (err) => {
                     if (err) throw err;
-                    res.status(201).json({ message: 'Book added and uploaded to OneDrive successfully!' });
+                    res.status(201).json({ message: 'Book added successfully!', file: uploadedBookFile, image: uploadedBookImage });
                 });
             });
         });
-    });
+    } catch (error) {
+        console.error('Error processing book upload:', error);
+        res.status(500).json({ message: 'Error uploading book to OneDrive' });
+    }
 });
 
-// Route to add a paper (similar to the book route)
+// Similar route for adding papers (like books)
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
-    const { paperTitle, username, password, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token } = req.body;
-    const fileName = req.files['paperFile'][0].filename;
-    const imageName = req.files['paperImage'][0].filename;
+    const { paperTitle, username, password } = req.body;
+    const paperFile = req.files['paperFile'][0];
+    const paperImage = req.files['paperImage'][0];
     const dateAdded = new Date();
 
-    // Check if admin exists and verify passwor
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-        const admin = adminResult[0];
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // Check if the paper title already exists in the database
-        const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
-        db.query(sqlCheckPaper, [paperTitle], (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Paper with this title already exists' });
+    try {
+        const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+        db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
+            if (err || adminResult.length === 0) {
+                return res.status(403).json({ message: 'Invalid admin credentials' });
             }
 
-            // If no duplicate, proceed to upload the paper to OneDrive
-            const filePath = path.join(__dirname, fileName);
-            const onedrive_folder = 'prof-uploads'; // OneDrive folder to store papers
-            uploadToOneDrive(filePath, onedrive_folder, fileName, onedrive_client_id, onedrive_client_secret, onedrive_refresh_token, (err, onedriveResponse) => {
-                if (err) {
-                    return res.status(500).json({ message: 'Error uploading to OneDrive' });
+            const admin = adminResult[0];
+            const match = await bcrypt.compare(password, admin.password);
+            if (!match) {
+                return res.status(403).json({ message: 'Invalid admin credentials' });
+            }
+
+            const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
+            db.query(sqlCheckPaper, [paperTitle], async (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                    return res.status(400).json({ message: 'Paper with this title already exists' });
                 }
 
-                // Proceed to add the paper in the database
+                const accessToken = await getAccessToken();
+
+                const uploadedPaperFile = await uploadToOneDrive(accessToken, paperFile.buffer, paperFile.originalname, folderName);
+                const uploadedPaperImage = await uploadToOneDrive(accessToken, paperImage.buffer, paperImage.originalname, folderName);
+
                 const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-                db.query(sqlInsertPaper, [paperTitle, fileName, dateAdded, imageName], (err) => {
+                db.query(sqlInsertPaper, [paperTitle, uploadedPaperFile.id, dateAdded, uploadedPaperImage.id], (err) => {
                     if (err) throw err;
-                    res.status(201).json({ message: 'Paper added and uploaded to OneDrive successfully!' });
+                    res.status(201).json({ message: 'Paper added successfully!', file: uploadedPaperFile, image: uploadedPaperImage });
                 });
             });
         });
-    });
+    } catch (error) {
+        console.error('Error processing paper upload:', error);
+        res.status(500).json({ message: 'Error uploading paper to OneDrive' });
+    }
 });
-
 // Route to get all users
 router.get('/getUsers', (req, res) => {
     const sql = 'SELECT id, fullname, email, created_at FROM users';
