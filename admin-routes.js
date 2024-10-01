@@ -38,23 +38,7 @@ async function getAccessToken() {
     }
 }
 
-// Function to upload files to OneDrive
-async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
-    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
 
-    try {
-        const response = await axios.put(uploadEndpoint, fileBuffer, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/octet-stream',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error uploading file to OneDrive:', error.response?.data || error.message);
-        throw new Error('Failed to upload file to OneDrive');
-    }
-}
 
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
@@ -124,6 +108,24 @@ async function verifyAdminCredentials(username, password) {
             resolve();
         });
     });
+}
+
+// Function to upload files to OneDrive
+async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
+    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
+
+    try {
+        const response = await axios.put(uploadEndpoint, fileBuffer, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/octet-stream',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading file to OneDrive:', error.response?.data || error.message);
+        throw new Error('Failed to upload file to OneDrive');
+    }
 }
 
 // Route to add a book and upload it to OneDrive
