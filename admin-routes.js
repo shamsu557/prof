@@ -57,28 +57,28 @@ async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
 }
 
 // API to fetch user and resource counts for the admin dashboard
-router.get('/stats', (req, res) => {
+router.get('/stats', async (req, res) => {
     const sqlQueries = {
         usersCount: 'SELECT COUNT(*) AS count FROM users',
         booksCount: 'SELECT COUNT(*) AS count FROM books',
         papersCount: 'SELECT COUNT(*) AS count FROM papers',
     };
 
-    Promise.all(
-        Object.values(sqlQueries).map(sql => new Promise((resolve, reject) => {
-            db.query(sql, (err, result) => {
-                if (err) return reject(err);
-                resolve(result[0].count);
+    try {
+        const results = await Promise.all(Object.values(sqlQueries).map(sql => {
+            return new Promise((resolve, reject) => {
+                db.query(sql, (err, result) => {
+                    if (err) return reject(err);
+                    resolve(result[0].count);
+                });
             });
-        }))
-    )
-    .then(([usersCount, booksCount, papersCount]) => {
-        res.json({ usersCount, booksCount, papersCount });
-    })
-    .catch(err => {
+        }));
+
+        res.json({ usersCount: results[0], booksCount: results[1], papersCount: results[2] });
+    } catch (err) {
         console.error('Error fetching stats:', err);
         res.status(500).json({ message: 'Error fetching stats' });
-    });
+    }
 });
 
 // Middleware to check if admin is authenticated
@@ -213,32 +213,32 @@ router.get('/getUsers', (req, res) => {
     });
 });
 
-// Route to remove a resource (book or paper)
-router.delete('/removeResource', (req, res) => {
-    const { id, type } = req.body;
+// Admin login route
+router.post('/admin-login', async (req, res) => {
+    const { username, password } = req.body;
 
-    let sqlDelete;
-    if (type === 'book') {
-        sqlDelete = 'DELETE FROM books WHERE id = ?';
-    } else if (type === 'paper') {
-        sqlDelete = 'DELETE FROM papers WHERE id = ?';
-    } else {
-        return res.status(400).json({ message: 'Invalid resource type' });
+    try {
+        await verifyAdminCredentials(username, password);
+        req.session.isAdmin = true; // Store admin login status in session
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(401).json({ message: 'Invalid credentials' });
     }
+});
 
-    db.query(sqlDelete, [id], (err) => {
+// Admin logout route
+router.get('/adminLogout', (req, res) => {
+    req.session.destroy(err => {
         if (err) {
-            console.error('Error removing resource:', err);
-            return res.status(500).json({ message: 'Error removing resource' });
+            console.error('Error during logout:', err);
+            return res.status(500).json({ message: 'Logout error' });
         }
-        res.status(200).json({ message: 'Resource removed successfully!' });
+        res.clearCookie('connect.sid'); // Clear session cookie
+        res.status(200).json({ message: 'Logout successful' });
     });
 });
 
-// Route for admin logout
-router.get('/adminLogout', (req, res) => {
-    req.session.isAdmin = false;
-    res.status(200).json({ message: 'Admin logged out successfully' });
-});
+// Other routes...
 
 module.exports = router;
