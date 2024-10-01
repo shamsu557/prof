@@ -110,52 +110,6 @@ async function verifyAdminCredentials(username, password) {
     });
 }
 
-// Route to redirect to Microsoft login
-router.get('/auth/login', (req, res) => {
-    const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=offline_access%20https://graph.microsoft.com/.default`;
-    res.redirect(authUrl);
-});
-
-// Route to handle the callback from Microsoft
-router.get('/auth/callback', async (req, res) => {
-    const { code } = req.query;
-
-    try {
-        const tokenResponse = await axios.post(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            code: code,
-            redirect_uri: redirectUri,
-            grant_type: 'authorization_code',
-        }));
-
-        const accessToken = tokenResponse.data.access_token;
-        req.session.accessToken = accessToken; // Store the access token in session
-        res.redirect('/admin-dashboard'); // Redirect to your admin dashboard
-    } catch (error) {
-        console.error('Error getting access token:', error.response?.data || error.message);
-        res.status(500).send('Authentication failed');
-    }
-});
-
-// Function to upload files to OneDrive with user-specific access token
-async function uploadToOneDrive(fileBuffer, fileName, accessToken) {
-    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
-
-    try {
-        const response = await axios.put(uploadEndpoint, fileBuffer, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/octet-stream',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error uploading file to OneDrive:', error.response?.data || error.message);
-        throw new Error('Failed to upload file to OneDrive');
-    }
-}
-
 // Example route for file upload
 router.post('/upload', async (req, res) => {
     const accessToken = req.session.accessToken; // Get the access token from session
@@ -168,13 +122,28 @@ router.post('/upload', async (req, res) => {
 
     try {
         const uploadedBookFile = await uploadToOneDrive(bookFile.data, bookFile.name, accessToken);
-        res.status(200).send(`File uploaded successfully: ${uploadedBookFile.id}`);
+        res.status(200).send({ message: 'File uploaded successfully', id: uploadedBookFile.id });
     } catch (error) {
         console.error('Upload failed:', error);
         res.status(500).send('Failed to upload file to OneDrive');
     }
 });
+async function uploadToOneDrive(fileBuffer, fileName, accessToken) {
+    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
 
+    try {
+        const response = await axios.put(uploadEndpoint, fileBuffer, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/octet-stream',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading file to OneDrive:', error.response ? error.response.data : error.message);
+        throw new Error('Failed to upload file to OneDrive');
+    }
+}
 
 // Route to add a paper and upload it to OneDrive
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
