@@ -8,7 +8,7 @@ const db = require('./mysql'); // Your MySQL configuration file
 const bcrypt = require('bcryptjs');
 
 const clientId = '55d85c04-778f-4e52-9f5d-5079b7b12d35'; // From Microsoft Azure
-const clientSecret = '57bfbedf-c735-4fe6-a7f3-94ba8893e4c2'; // From Microsoft Azure
+const clientSecret = 'pN.8Q~ct6YO1uBiaADsa-yd12.~9Y3pdIdUe0blR'; // From Microsoft Azure
 const tenantId = 'a8d3019e-aba7-4627-886e-fcd4128c8656'; // From Microsoft Azure
 const redirectUri = 'https://prof-publications.onrender.com/auth/callback'; // Your redirect URI
 const folderName = 'prof-upload'; // OneDrive folder
