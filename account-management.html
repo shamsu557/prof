@@ -29,18 +29,6 @@
         </div>
         <button type="submit" class="btn btn-success btn-block">Submit</button>
       </form>
-
-      <!-- Security Question Form (Initially hidden) -->
-      <form id="securityQuestionForm" action="/validate-security-answer" method="POST" class="border p-4 shadow-sm rounded" style="display:none;">
-        <h2 class="text-center mb-4">Security Question</h2>
-        <input type="hidden" name="email" id="securityEmail">
-        <div class="form-group">
-          <label id="securityQuestionLabel"></label> <!-- Placeholder for the security question -->
-          <input type="text" name="securityAnswer" class="form-control" placeholder="Your Answer" required>
-        </div>
-        <button type="submit" class="btn btn-info btn-block">Submit Answer</button>
-      </form>
-
       <!-- Reset Password Form (Initially hidden, shown when the security answer is valid) -->
       <form id="resetPasswordForm" action="/reset-password" method="POST" class="border p-4 shadow-sm rounded" style="display:none;">
         <h2 class="text-center mb-4">Reset Password</h2>

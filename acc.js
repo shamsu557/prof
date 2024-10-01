@@ -6,28 +6,9 @@ $(document).ready(function() {
 
     $.post('/forgot-password', { email }, function(response) {
       if (response.success) {
-        // Display the security question form
-        $('#securityEmail').val(email);
-        $('#securityQuestionLabel').text(response.securityQuestion);
-        $('#forgotPasswordForm').hide();
-        $('#securityQuestionForm').show();
-      } else {
-        $('#message').text(response.message).show();
-      }
-    }, 'json');
-  });
-
-  // Handle the form submission for validating the security answer
-  $('#securityQuestionForm').on('submit', function(e) {
-    e.preventDefault();
-    const email = $('#securityEmail').val();
-    const securityAnswer = $('input[name="securityAnswer"]').val().trim().toUpperCase();
-
-    $.post('/validate-security-answer', { email, securityAnswer }, function(response) {
-      if (response.success) {
-        // Show the reset password form
+        // Show the reset password form directly
         $('#resetEmail').val(email);
-        $('#securityQuestionForm').hide();
+        $('#forgotPasswordForm').hide();
         $('#resetPasswordForm').show();
       } else {
         $('#message').text(response.message).show();
