@@ -34,7 +34,7 @@ async function getAccessToken() {
         const response = await axios.post(tokenEndpoint, params);
         return response.data.access_token;
     } catch (error) {
-        console.error('Error fetching access token:', error.response.data);
+        console.error('Error fetching access token:', error.response?.data || error.message);
         throw new Error('Failed to get access token');
     }
 }
@@ -52,10 +52,11 @@ async function uploadToOneDrive(accessToken, fileBuffer, fileName, folderName) {
         });
         return response.data;
     } catch (error) {
-        console.error('Error uploading file to OneDrive:', error.response.data);
+        console.error('Error uploading file to OneDrive:', error.response?.data || error.message);
         throw new Error('Failed to upload file to OneDrive');
     }
 }
+
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
     const sqlUsersCount = 'SELECT COUNT(*) AS count FROM users';
@@ -158,7 +159,7 @@ router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage'
     }
 });
 
-// Similar route for adding papers (like books)
+// Route to add a paper and upload it to OneDrive (similar to books)
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
     const { paperTitle, username, password } = req.body;
     const paperFile = req.files['paperFile'][0];
@@ -166,6 +167,7 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
     const dateAdded = new Date();
 
     try {
+        // Check if admin exists and verify password
         const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
         db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
             if (err || adminResult.length === 0) {
@@ -178,6 +180,7 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
                 return res.status(403).json({ message: 'Invalid admin credentials' });
             }
 
+            // Check if the paper title already exists
             const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
             db.query(sqlCheckPaper, [paperTitle], async (err, result) => {
                 if (err) throw err;
@@ -185,11 +188,14 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
                     return res.status(400).json({ message: 'Paper with this title already exists' });
                 }
 
+                // Get access token for OneDrive
                 const accessToken = await getAccessToken();
 
+                // Upload paper file and image to OneDrive
                 const uploadedPaperFile = await uploadToOneDrive(accessToken, paperFile.buffer, paperFile.originalname, folderName);
                 const uploadedPaperImage = await uploadToOneDrive(accessToken, paperImage.buffer, paperImage.originalname, folderName);
 
+                // Insert the paper into the database
                 const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
                 db.query(sqlInsertPaper, [paperTitle, uploadedPaperFile.id, dateAdded, uploadedPaperImage.id], (err) => {
                     if (err) throw err;
