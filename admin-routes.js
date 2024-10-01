@@ -38,6 +38,24 @@ async function getAccessToken() {
     }
 }
 
+// Function to upload a file to OneDrive
+async function uploadToOneDrive(accessToken, fileBuffer, fileName) {
+    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
+    
+    try {
+        const response = await axios.put(uploadEndpoint, fileBuffer, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/octet-stream',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading to OneDrive:', error.response?.data || error.message);
+        throw new Error('Failed to upload to OneDrive');
+    }
+}
+
 // API to fetch user and resource counts for the admin dashboard
 router.get('/stats', (req, res) => {
     const sqlQueries = {
@@ -108,41 +126,43 @@ async function verifyAdminCredentials(username, password) {
     });
 }
 
-// Example route for file upload
-router.post('/upload', async (req, res) => {
-    const accessToken = req.session.accessToken; // Get the access token from session
+// Route to add a book and upload it to OneDrive
+router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
+    const { bookTitle, username, password } = req.body;
+    const bookFile = req.files['bookFile']?.[0];
+    const bookImage = req.files['bookImage']?.[0];
+    const dateAdded = new Date();
 
-    if (!accessToken) {
-        return res.status(401).json({ message: 'Unauthorized: No access token available. Please log in.' });
+    if (!bookFile || !bookImage) {
+        return res.status(400).json({ message: 'Both book file and image are required' });
     }
 
-    const bookFile = req.files.bookFile; // Ensure you have file upload middleware (like multer) set up
-
     try {
-        const uploadedBookFile = await uploadToOneDrive(bookFile.data, bookFile.name, accessToken);
-        res.status(200).json({ message: 'File uploaded successfully', id: uploadedBookFile.id });
+        await verifyAdminCredentials(username, password);
+
+        const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
+        db.query(sqlCheckBook, [bookTitle], async (err, result) => {
+            if (err) throw err;
+            if (result.length > 0) {
+                return res.status(400).json({ message: 'Book with this title already exists' });
+            }
+
+            const accessToken = await getAccessToken();
+
+            const uploadedBookFile = await uploadToOneDrive(accessToken, bookFile.buffer, bookFile.originalname);
+            const uploadedBookImage = await uploadToOneDrive(accessToken, bookImage.buffer, bookImage.originalname);
+
+            const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
+            db.query(sqlInsertBook, [bookTitle, uploadedBookFile.id, dateAdded, uploadedBookImage.id], (err) => {
+                if (err) throw err;
+                res.status(201).json({ message: 'Book added successfully!', file: uploadedBookFile, image: uploadedBookImage });
+            });
+        });
     } catch (error) {
-        console.error('Upload failed:', error);
-        res.status(500).json({ message: 'Failed to upload file to OneDrive' });
+        console.error('Error processing book upload:', error);
+        res.status(500).json({ message: error.message || 'Error uploading book to OneDrive' });
     }
 });
-
-async function uploadToOneDrive(fileBuffer, fileName, accessToken) {
-    const uploadEndpoint = `https://graph.microsoft.com/v1.0/me/drive/root:/${folderName}/${fileName}:/content`;
-
-    try {
-        const response = await axios.put(uploadEndpoint, fileBuffer, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/octet-stream',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error uploading file to OneDrive:', error.response ? error.response.data : error.message);
-        throw new Error('Failed to upload file to OneDrive');
-    }
-}
 
 // Route to add a paper and upload it to OneDrive
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
@@ -167,15 +187,12 @@ router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperIma
 
             const accessToken = await getAccessToken();
 
-            const uploadedPaperFile = await uploadToOneDrive(paperFile.buffer, paperFile.originalname, accessToken);
-            const uploadedPaperImage = await uploadToOneDrive(paperImage.buffer, paperImage.originalname, accessToken);
+            const uploadedPaperFile = await uploadToOneDrive(accessToken, paperFile.buffer, paperFile.originalname);
+            const uploadedPaperImage = await uploadToOneDrive(accessToken, paperImage.buffer, paperImage.originalname);
 
             const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
             db.query(sqlInsertPaper, [paperTitle, uploadedPaperFile.id, dateAdded, uploadedPaperImage.id], (err) => {
-                if (err) {
-                    console.error('Error inserting paper into database:', err);
-                    return res.status(500).json({ message: 'Error inserting paper into database' });
-                }
+                if (err) throw err;
                 res.status(201).json({ message: 'Paper added successfully!', file: uploadedPaperFile, image: uploadedPaperImage });
             });
         });
@@ -196,26 +213,32 @@ router.get('/getUsers', (req, res) => {
     });
 });
 
-// Route to remove a user
-router.delete('/removeUser/:id', async (req, res) => {
-    const userId = req.params.id;
-    const { username, password } = req.body;
+// Route to remove a resource (book or paper)
+router.delete('/removeResource', (req, res) => {
+    const { id, type } = req.body;
 
-    try {
-        await verifyAdminCredentials(username, password);
-
-        const sqlDeleteUser = 'DELETE FROM users WHERE id = ?';
-        db.query(sqlDeleteUser, [userId], (err) => {
-            if (err) {
-                console.error('Error removing user:', err);
-                return res.status(500).json({ message: 'Error removing user' });
-            }
-            res.json({ message: 'User removed successfully' });
-        });
-    } catch (error) {
-        console.error('Error removing user:', error);
-        res.status(500).json({ message: error.message || 'Error removing user' });
+    let sqlDelete;
+    if (type === 'book') {
+        sqlDelete = 'DELETE FROM books WHERE id = ?';
+    } else if (type === 'paper') {
+        sqlDelete = 'DELETE FROM papers WHERE id = ?';
+    } else {
+        return res.status(400).json({ message: 'Invalid resource type' });
     }
+
+    db.query(sqlDelete, [id], (err) => {
+        if (err) {
+            console.error('Error removing resource:', err);
+            return res.status(500).json({ message: 'Error removing resource' });
+        }
+        res.status(200).json({ message: 'Resource removed successfully!' });
+    });
+});
+
+// Route for admin logout
+router.get('/adminLogout', (req, res) => {
+    req.session.isAdmin = false;
+    res.status(200).json({ message: 'Admin logged out successfully' });
 });
 
 module.exports = router;
