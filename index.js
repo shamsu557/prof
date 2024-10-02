@@ -318,7 +318,7 @@ function isAuthenticated(req, res, next) {
   if (req.path === '/admin-dashboard.html') {
     res.redirect('/adminLogin');
   } else if (req.path === '/resources.html') {
-    res.redirect('/login');
+    res.redirect('/adminLogin');
   } else {
     res.redirect('/login');
   }
