@@ -27,7 +27,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: sessionStore, // Use MySQL-based session store
-  cookie: { secure: false } // Change to true in production with HTTPS
+  cookie: { 
+    secure: false, // Change to true in production (requires HTTPS)
+    httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
+    maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year session expiration (in milliseconds)
+  }
 }));
 
 
