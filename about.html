@@ -53,8 +53,6 @@
             color: #555;
         }
 
-       
-
         /* Footer styling */
         .footer {
             background: #f8f9fa;
@@ -112,6 +110,7 @@
         #myBtn:hover {
             background-color: #555;
         }
+
         /* Close button styling */
         .close-btn {
             display: block;
@@ -131,7 +130,6 @@
             background-color: #c82333;
         }
 
-
     </style>
 </head>
 
@@ -143,27 +141,28 @@
         </div>
         <h2 class="section-title">Professor Amagwu Ibeawuchi Francis</h2>
         <p class="about-content">
-            Professor Amagwu Ibeawuchi Francis, fondly called Frank, was born in Kafanchan, Kaduna State, and hails from Aboh Mbaise, Imo State. He holds a B.Sc. (Hons) in Banking and Finance from the University of Calabar, graduating as the best student in his department in 1990 and receiving the prestigious IBWA Bank Award for Academic Excellence.
+            Amagwu, Ibeawuchi Francis (aka Frank) is a Professor of Micro & Development Finance and Faculty, Apollos University, Great Falls Montana, USA.
+            He is also a Facilitator at the Post Graduate School of the National Open University of Nigeria (NOUN), and a Senior Research Fellow (SRF) at The West African Green Economic Development Institute (WAGEDI). He is an Associate Research Fellow of the Africa Institute of Applied Economics (AIAE), Enugu, now African Heritage Institute.
         </p>
         <p class="about-content">
-            He furthered his education at the University of Lagos, Akoka, where he earned an M.Sc. in Finance, followed by another M.Sc. in Development Studies (with distinction) from the University of Nigeria, Nsukka. He later attained his Ph.D. in Development Finance, also with distinction, from the University of Nigeria.
+            Amagwu Ibeawuchi Francis holds a Ph.D. (With Distinction) in Micro & Development Studies from the University of Nigeria Nsukka, an M.Sc. Degree (also with Distinction) in Micro Finance from the same University, and another M.Sc. in Finance from the University of Lagos. Earlier, he obtained a B.Sc. Degree in Banking & Finance with top class honors as the best graduating student in the Department of Banking & Finance of the University of Calabar in 1990, hence winning the International Bank of West Africa (IBWA) Prize for academic excellence.
         </p>
         <p class="about-content">
-            Frank is an Associate Research Fellow at the African Heritage Institution (formerly African Institute of Applied Economics, AIAE), where he served as Chairman of the Enugu Forum (2006–2010). He is a Fellow of the Nigerian Institute of Treasury and Financial Accountants (FTFA) and a member of the Nigerian Institute of Management (MNIM). Additionally, he belongs to the World Association of Academic Doctors (WAAD) in Maryland, USA, and is an honorary member of the Chartered Institute of Bankers of Nigeria (HCIB).
+            Professionally, he is a Senior honorary member of the Chartered Institute of Bankers of Nigeria (HCIB), Fellow Chartered Certified Systems Accountants (FCCSA, USA), and Fellow Chartered National Accountant of Nigeria (FCNA). He is also a member of the Nigerian Institute of Management (NIM) as well as the Institute of Treasury and Financial Accountants of Nigeria (ITFM).
         </p>
         <p class="about-content">
-            His career journey began at the Federal Airport Authority of Nigeria (FAAN) as an Internal Auditor. He then transitioned into commercial banking with Commerce Bank Plc and later worked with FSB International Bank Plc, Fidelity Bank Plc, and First City Monument Bank Plc, where he held the position of Regional Director (East). In 2011, Frank joined the Central Bank of Nigeria as an Assistant Director, where he served in various roles, including Head of Development Finance, Head of MSMEDF, and Branch Controller of the CBN Abuja Branch since 2018.
+            His working career spans Teaching, Auditing, Retail & commercial banking, and the Central Bank of Nigeria (CBN), where he held several positions and responsibilities, including Divisional Head of the Micro, Small and Medium Enterprises Development Fund. He was also the immediate past Controller of the Central Bank of Nigeria, Abuja Branch. Before joining the services of the CBN in 2011 as an Assistant Director, Professor Amagwu had worked at various commercial banks for nineteen years. His last appointment was as Regional Director (South East) at First City Monument Bank (FCMB) PLC. He voluntarily retired from the services of the CBN as a Director (Operations) in November 2021.
         </p>
         <p class="about-content">
-            Frank has authored philosophical works such as "Life Is Pain" and "The Fool in Me" and published several research articles on microfinance and development finance in journals like SAGE. He is married to Dr. Chinedum Christabel, and they are blessed with two children.
+            An International Consultant in MSME Development Finance, Prof. Amagwu Ibeawuchi Francis is an author and publisher of many books and academic publications in reputable local and international journals. He is a motivational speaker, corporate coach, and mentor who enjoys writing and public policy analysis and advocacy.
         </p>
         <p class="about-content">
-            Professor Amagwu is currently a faculty member at Apollos University, Montana, USA, and an Associate Professor at the National Open University of Nigeria (NOUN). He supervises MSc and MBA postgraduate candidates at NOUN’s Garki Centre.
+            He is currently involved in MSME Development and Green Economics. He is married to Dr. Chinedum Christabel, a Consultant Clinical Microbiologist, and they are blessed with children.
         </p>
         <!-- Close button -->
-        <button class="close-btn" onclick="goHome()">Close</button>
+        <button class="close-btn" onclick="goBack()">Close</button>
     </div>
-    </div><br><br>
+    <br><br>
 
     <!-- Footer -->
     <div class="footer">
@@ -210,10 +209,11 @@
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
         }
-         // Close button functionality
-         function goHome() {
-            window.location.href = "index.html";
-        }
+        // Close button functionality
+function goBack() {
+    window.history.back();
+}
+
     </script>
 </body>
 
