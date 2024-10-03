@@ -2,11 +2,11 @@ const mysql = require('mysql');
 
 // MySQL database connection configuration
 const dbConfig = {
-       host: process.env.DB_HOST || 'localhost',  // Use environment variable or default
+       host: process.env.DB_HOST || 'mysql-shamsu557.alwaysdata.net',  // Use environment variable or default
     port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
-    user: process.env.DB_USER || 'cpses_frk1h7f1af@localhost',                   // MySQL username from environment
+    user: process.env.DB_USER || 'shamsu557_db',                   // MySQL username from environment
     password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
-    database: process.env.DB_NAME || 'frankama_mydatabase'    
+    database: process.env.DB_NAME || 'shamsu557_mydatabase'        // Database name from environment
 };
 
 // Create MySQL database connection
