@@ -12,12 +12,11 @@ const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
 
 // MySQL session store options
-const sessionStore = new MySQLStore({
-       host: process.env.DB_HOST || 'mysql-shamsu557.alwaysdata.net',  // Use environment variable or default
+const  host: process.env.DB_HOST || 'localhost',  // Use environment variable or default
     port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
-    user: process.env.DB_USER || 'shamsu557_db',                   // MySQL username from environment
+    user: process.env.DB_USER || 'cpses_fr83m9lkfj@localhost',                   // MySQL username from environment
     password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
-    database: process.env.DB_NAME || 'shamsu557_mydatabase'        // Database name from environment           // Database name from environment
+    database: process.env.DB_NAME || 'frankama_dbase'        // Database name from environment      // Database name from environment
 });
 
 
