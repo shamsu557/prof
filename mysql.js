@@ -2,7 +2,7 @@ const mysql = require('mysql');
 
 // MySQL database connection configuration
 const dbConfig = {
-       host: process.env.DB_HOST || 'frankama.com',  // Use environment variable or default
+       host: process.env.DB_HOST || '176.74.18.130',  // Use environment variable or default
     port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
     user: process.env.DB_USER || 'frankama_admin',                   // MySQL username from environment
     password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
