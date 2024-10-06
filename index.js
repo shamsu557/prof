@@ -6,43 +6,23 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
-const MySQLStore = require('express-mysql-session')(session); // Import MySQL session store
-
 const app = express();
 const saltRounds = 10; // Define salt rounds for bcrypt hashing
 
-// MySQL session store options
-const dbConfig = {
-         host: process.env.DB_HOST || '176.74.18.130',  // Use environment variable or default
-    port: process.env.DB_PORT || 3306,                             // Default MySQL port or environment variable
-    user: process.env.DB_USER || 'frankama_admin',                   // MySQL username from environment
-    password: process.env.DB_PASSWORD || '@Shamsu1440',            // MySQL password from environment
-    database: process.env.DB_NAME || 'frankama_dbase'        // Database name from environment
-};
-
-// Create a MySQLStore instance
-const sessionStore = new MySQLStore(dbConfig);
-
-// Set up session with MySQL store
+// Set up session
 app.use(session({
   secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
   resave: false,
   saveUninitialized: false,
-  store: sessionStore, // Use MySQL-based session store
   cookie: { 
-    secure: false, // Change to true in production (requires HTTPS)
-    httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-    maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year session expiration (in milliseconds)
+    httpOnly: true,
+    maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year session expiration
   }
 }));
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Serve static files (HTML, CSS, JS, etc.) from the root directory
-app.use(express.static(path.join(__dirname)));
-
 // Middleware to prevent caching of sensitive pages
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -69,22 +49,31 @@ function isAdminAuthenticated(req, res, next) {
   }
 }
 
-// report page
-app.get('/overview', (req, res) => {
-  res.sendFile(path.join(__dirname,  'overview.html'));
+
+// Serve static files (HTML, CSS, JS, etc.) from the root directory
+app.use(express.static(path.join(__dirname)));
+
+// Serve index.html at the root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+// about page 
+app.get('/About', (req, res) => {
+  res.sendFile(path.join(__dirname, 'about.html'));
 });
 
-// Signup page
+
+// User Signup page
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup.html'));
 });
 
-// Handle sign up
+// Handle User Signup
 app.post('/signup', (req, res) => {
   const { fullname, email, phone_number, password } = req.body;
 
-  // First, check if the email already exists
-  db.query('SELECT email FROM users WHERE email = ? ', [email], (err, results) => {
+  // Check if the email already exists
+  db.query('SELECT email FROM users WHERE email = ?', [email], (err, results) => {
     if (err) {
       console.error('Error querying database for signup:', err);
       return res.status(500).json({ success: false, message: 'Server error' });
@@ -92,13 +81,10 @@ app.post('/signup', (req, res) => {
 
     // Check if the email is already taken
     if (results.length > 0) {
-      const existingUser = results[0];
-      if (existingUser.email === email) {
-        return res.status(400).json({ success: false, message: 'Email already exists' });
-      }
+      return res.status(400).json({ success: false, message: 'Email already exists' });
     }
 
-    // If no user found, hash the password and insert the new user
+    // Hash the password and insert the new user
     bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
       if (err) {
         console.error('Error hashing password:', err);
@@ -120,7 +106,76 @@ app.post('/signup', (req, res) => {
   });
 });
 
+// User Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
 
+// Handle User Login
+app.post('/login', (req, res) => {
+  const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
+
+  db.query('SELECT * FROM users WHERE email = ?', [identifier], (err, results) => {
+    if (err) {
+      console.error('Error querying database for login:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (results.length === 0) {
+      return res.status(400).send('No user found');
+    }
+
+    const user = results[0];
+    if (bcrypt.compareSync(password, user.password)) {
+      req.session.user = user;
+      res.redirect('/resources.html'); // Redirect to resources page after successful login
+    } else {
+      res.status(400).send('Incorrect password');
+    }
+  });
+});
+// Forgot password endpoint
+app.post('/forgot-password', (req, res) => {
+  const { email } = req.body;
+
+  db.query('SELECT email FROM users WHERE email = ?', [email], (err, result) => {
+    if (err) {
+      console.error('Error checking email:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (result.length > 0) {
+      res.json({ success: true, message: 'Email found. You may now reset your password.' });
+    } else {
+      res.json({ success: false, message: 'Email does not exist.' });
+    }
+  });
+});
+
+// Reset password endpoint
+app.post('/reset-password', (req, res) => {
+  const { email, newPassword } = req.body;
+
+  bcrypt.hash(newPassword, saltRounds, (err, hash) => {
+    if (err) {
+      console.error('Error hashing password:', err);
+      return res.status(500).send('Server error');
+    }
+
+    db.query('UPDATE users SET password = ? WHERE email = ?', [hash, email], (err, result) => {
+      if (err) {
+        console.error('Error updating password:', err);
+        return res.status(500).send('Server error');
+      }
+
+      if (result.affectedRows > 0) {
+        res.json({ success: true, message: 'Password updated successfully!', redirectUrl: '/login' });
+      } else {
+        res.json({ success: false, message: 'Failed to update password. Try again later.' });
+      }
+    });
+  });
+});
 
 // Admin creation login route (only allows Admin001 with 'default' password)
 app.post('/admin-creation-login', (req, res) => {
@@ -149,163 +204,36 @@ app.get('/admin-signup', (req, res) => {
 app.post('/admin-signup', (req, res) => {
   const { username, password, email, fullName, phone } = req.body;
 
+  // Check if the email already exists
   db.query('SELECT email FROM admins WHERE email = ?', [email], (err, results) => {
     if (err) {
       console.error('Error querying database for signup:', err);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
 
+    // Check if the email is already taken
     if (results.length > 0) {
       return res.status(400).json({ success: false, message: 'Email already exists' });
-    } else {
-      // Hash the password
-      bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
-        if (err) {
-          console.error('Error hashing password:', err);
-          return res.status(500).json({ success: false, message: 'Server error' });
-        }
+    } 
 
-        // Insert new admin into the database
-        db.query('INSERT INTO admins (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)', 
-          [username, hashedPassword, email, fullName, phone], (err) => {
-            if (err) {
-              console.error('Error inserting user into database:', err);
-              return res.status(500).json({ success: false, message: 'Server error' });
-            }
-            res.json({ success: true, message: 'Admin created successfully!. They can Now Access The Dashboard', redirectUrl: '/adminLogin' });
+    // Hash the password
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+      if (err) {
+        console.error('Error hashing password:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
+      }
 
+      // Insert new admin into the database
+      db.query('INSERT INTO admins (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)', 
+        [username, hashedPassword, email, fullName, phone], (err) => {
+          if (err) {
+            console.error('Error inserting admin into database:', err);
+            return res.status(500).json({ success: false, message: 'Server error' });
           }
-        );
-      });
-    }
-  });
-});
-
-// Serve the admin signup page
-app.get('/admin-signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-signup.html'));
-});
-
-
-// Login page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-// Handle login
-app.post('/login', (req, res) => {
-  const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
-
-  db.query('SELECT * FROM users WHERE email = ?', [identifier], (err, results) => {
-    if (err) {
-      console.error('Error querying database for login:', err);
-      return res.status(500).send('Server error');
-    }
-
-    if (results.length === 0) {
-      return res.status(400).send('No user found');
-    }
-
-    const user = results[0];
-    if (bcrypt.compareSync(password, user.password)) {
-      req.session.user = user;
-      res.redirect('/resources.html');
-    } else {
-      res.status(400).send('Incorrect password');
-    }
-  });
-});
-
-
-// Login page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-// Handle login
-app.post('/login', (req, res) => {
-  const { identifier, password } = req.body; // Use 'identifier' to accept either email or username
-
-  db.query('SELECT * FROM users WHERE email = ?', [identifier, identifier], (err, results) => {
-    if (err) {
-      console.error('Error querying database for login:', err);
-      return res.status(500).send('Server error');
-    }
-
-    if (results.length === 0) {
-      return res.status(400).send('No user found');
-    }
-
-    const user = results[0];
-    if (bcrypt.compareSync(password, user.password)) {
-      req.session.user = user;
-      res.redirect('/resources.html');
-    } else {
-      res.status(400).send('Incorrect password');
-    }
-  });
-});
-
-// API Endpoint to fetch books
-app.get('/api/books', (req, res) => {
-  const query = 'SELECT id, bookTitle, file_name, image FROM books';
-  
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching books:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-    res.json(results);
-  });
-});
-
-// API Endpoint to fetch papers
-app.get('/api/papers', (req, res) => {
-  const query = 'SELECT id, paperTitle, file_name, image FROM papers';
-  
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching papers:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-    res.json(results);
-  });
-});
-
-// Serve book or paper files for reading
-app.get('/view/:fileName', (req, res) => {
-  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
-  
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      return res.status(404).send('File not found');
-    }
-    res.sendFile(filePath);
-  });
-});
-
-// Serve files for download
-app.get('/files/:fileName', (req, res) => {
-  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
-  
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      return res.status(404).send('File not found');
-    }
-    res.download(filePath);
-  });
-});
-
-
-// Logout route
-app.get('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Error destroying session:', err);
-      return res.status(500).send('Server error');
-    }
-    res.clearCookie('connect.sid'); // Clear the session cookie
-    res.redirect('/login'); // Redirect to login page after logout
+          res.json({ success: true, message: 'Admin created successfully! They can now access the dashboard.', redirectUrl: '/login' });
+        }
+      );
+    });
   });
 });
 
@@ -359,59 +287,11 @@ app.get('/auth-check', (req, res) => {
     res.json({ authenticated: false });
   }
 });
-// Forgot password endpoint
-app.post('/forgot-password', (req, res) => {
-  const { email } = req.body;
-
-  db.query('SELECT email FROM users WHERE email = ?', [email], (err, result) => {
-    if (err) {
-      console.error('Error checking email:', err);
-      return res.status(500).send('Server error');
-    }
-
-    if (result.length > 0) {
-      res.json({ success: true, message: 'Email found. You may now reset your password.' });
-    } else {
-      res.json({ success: false, message: 'Email does not exist.' });
-    }
-  });
-});
-
-// Reset password endpoint
-app.post('/reset-password', (req, res) => {
-  const { email, newPassword } = req.body;
-
-  bcrypt.hash(newPassword, saltRounds, (err, hash) => {
-    if (err) {
-      console.error('Error hashing password:', err);
-      return res.status(500).send('Server error');
-    }
-
-    db.query('UPDATE users SET password = ? WHERE email = ?', [hash, email], (err, result) => {
-      if (err) {
-        console.error('Error updating password:', err);
-        return res.status(500).send('Server error');
-      }
-
-      if (result.affectedRows > 0) {
-        res.json({ success: true, message: 'Password updated successfully!', redirectUrl: '/login' });
-      } else {
-        res.json({ success: false, message: 'Failed to update password. Try again later.' });
-      }
-    });
-  });
-});
-
 
 // Admin login page
 app.get('/adminLogin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-login.html'));
 });
-// about page 
-app.get('/About', (req, res) => {
-  res.sendFile(path.join(__dirname, 'about.html'));
-});
-
 // Handle admin login
 app.post('/adminLogin', (req, res) => {
   const { username, password } = req.body;
@@ -436,8 +316,67 @@ app.post('/adminLogin', (req, res) => {
   });
 });
 
-// Admin dashboard route (optional security check)
+// API Endpoint to fetch books
+app.get('/api/books', (req, res) => {
+  const query = 'SELECT id, bookTitle, file_name, image FROM books';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching books:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
 
+// API Endpoint to fetch papers
+app.get('/api/papers', (req, res) => {
+  const query = 'SELECT id, paperTitle, file_name, image FROM papers';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching papers:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Serve book or paper files for reading
+app.get('/view/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
+  
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+    res.sendFile(filePath);
+  });
+});
+
+// Serve files for download
+app.get('/files/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // Serve directly from the current folder
+  
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+    res.download(filePath);
+  });
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.status(500).send('Server error');
+    }
+    res.clearCookie('connect.sid'); // Clear the session cookie
+    res.redirect('/login'); // Redirect to login page after logout
+  });
+});
 // admin Logout route
 app.get('/adminLogout', (req, res) => {
   req.session.destroy((err) => {
@@ -445,11 +384,12 @@ app.get('/adminLogout', (req, res) => {
       res.redirect('/admin-login.html');
   });
 });
+
 app.use('/admin', adminRoutes);
 
 
-
-const PORT = process.env.PORT || 8100; // Use the PORT environment variable provided by Render
+// Server listening on port
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
