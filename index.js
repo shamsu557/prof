@@ -182,8 +182,8 @@ app.post('/admin-creation-login', (req, res) => {
   const { username, password } = req.body;
 
   // Hardcoded credentials
-  const validUsername = 'Admin001';
-  const validPassword = 'default';
+  const validUsername = 'Admin';
+  const validPassword = 'password';
 
   // Check the credentials
   if (username === validUsername && password === validPassword) {
@@ -230,7 +230,7 @@ app.post('/admin-signup', (req, res) => {
             console.error('Error inserting admin into database:', err);
             return res.status(500).json({ success: false, message: 'Server error' });
           }
-          res.json({ success: true, message: 'Admin created successfully! They can now access the dashboard.', redirectUrl: '/login' });
+          res.json({ success: true, message: 'Admin created successfully! They can now access the dashboard.', redirectUrl: '/adminLogin' });
         }
       );
     });
