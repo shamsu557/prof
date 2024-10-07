@@ -39,28 +39,88 @@ main {
 
 /* Fixed Circular Images */
 .fixed-image, .circular-img {
-        width: 55px; /* Smaller size */
-        height: 60px; /* Smaller size */
-        object-fit: contain; /* Ensures the entire image fits within the dimensions */
-        border-radius: 50%; /* Optional: slight rounding to corners */
+    width: 55px; /* Smaller size */
+    height: 60px; /* Smaller size */
+    object-fit: contain; /* Ensures the entire image fits within the dimensions */
+    border-radius: 50%; /* Optional: slight rounding to corners */
 }
 
-/* Navbar */
-.navbar {
+/* General Styles for Circular Images */
+.circular-img {
+    width: 55px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 50%; /* Circular image */
+}
+
+/* First Navbar - Contains images and text */
+.first-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 10px;
 }
 
-.navbar-brand {
+.fixed-left-img, .fixed-right-img {
+    position: relative;
+}
+
+/* Second Navbar - Contains menu items */
+.second-navbar {
+    margin-top: 60px; /* Add space between the two navbars */
+}
+
+.navbar-toggler {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.navbar-nav .nav-link {
-    color: white !important;
+/* Ensure the links have a hover effect */
+.navbar-nav .nav-item .nav-link {
+    color: white !important; /* Ensure the links are white by default */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth transition for hover */
 }
+
+
+/* Text-based  link */
+.text-danger {
+    cursor: pointer;
+    color: red !important;
+    text-decoration: none;
+    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth transition for hover */
+}
+
+/* Hover effect for link */
+.text-danger:hover {
+    color: #f8d7da !important; /* Light red on hover */
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Optional: background color change */
+}
+
+/* Ensure the menu icon is centered on mobile devices */
+@media (max-width: 992px) {
+    .navbar-toggler {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .navbar-collapse {
+        justify-content: center;
+    }
+}
+
+/* Large screen styles */
+@media (min-width: 992px) {
+    .navbar-collapse {
+        justify-content: center;
+    }
+
+    /* Hide the toggler on large screens */
+    .navbar-toggler {
+        display: none;
+    }
+}
+
 
 /* Statistics Container */
 .stats-container {
