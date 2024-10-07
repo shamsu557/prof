@@ -15,8 +15,18 @@
     <div class="marquee-text">
       Welcome to Professor Shamsu Sabo's account management page. Secure your access and manage your profile effectively.
     </div>
-    <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
-  </div>
+     <div>
+      <a href="about.html" title="Click to learn more about me" style="position: relative; display: inline-block;">
+        <img src="prof.jpeg" class="fixed-image" alt="Professor Picture" style="cursor: pointer;">
+      
+        <!-- The hoverable pop-up message -->
+        <div style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+                    background-color: #6b6767; padding: 10px; border: 1px solid #383737; border-radius: 5px; 
+                    text-align: center; white-space: nowrap;" id="hoverMessage">
+          About Me
+        </div>
+      </a>
+    </div> </div>
 
   <!-- Main content container -->
   <div class="content">
