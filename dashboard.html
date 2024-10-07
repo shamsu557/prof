@@ -4,47 +4,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="dashboard.css">
+    
 </head>
 <body>
-  <div class="container">
-    <h1 class="text-center my-4">Admin Dashboard</h1>
 
-    <h3>Number of Signups: 100</h3>
+ <!-- First Navbar (Images and Admin Dashboard Text) -->
+<nav class="navbar navbar-light bg-dark fixed-top first-navbar">
+  <!-- Left image (Education Cap) -->
+  <img src="educap.jfif" alt="Education Cap" class="circular-img fixed-left-img">
+  
+  <!-- Navbar brand (Admin Dashboard text) centered -->
+  <span class="navbar-brand mx-auto text-white">Admin&nbsp;&nbsp;Dashboard</span>
+  
+  <!-- Right image (Professor) -->
+  <img src="prof.jpeg" alt="Professor" class="circular-img fixed-right-img">
+</nav>
 
-    <h4 class="mt-4">Papers</h4>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>View Count</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Paper Title 1</td>
-          <td>50</td>
-        </tr>
-        <!-- Repeat for other papers -->
-      </tbody>
-    </table>
+<!-- Second Navbar (Navbar Items) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark second-navbar">
+  <!-- Toggler for mobile view -->
+  <button class="navbar-toggler mx-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-    <h4 class="mt-4">Books</h4>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Download Count</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Book Title 1</td>
-          <td>30</td>
-        </tr>
-        <!-- Repeat for other books -->
-      </tbody>
-    </table>
+  <!-- Collapsible navbar items -->
+  <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="admin-dashboard.html">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="overview.html">Reports</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="resource-management.html">Resource Management</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="users-management.html">User Management</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="#" onclick="logout()">Logout</a> <!-- Text-based logout -->
+      </li>
+    </ul>
   </div>
+</nav>
+<br><br>
+
+  <!-- Welcome Section -->
+  <main class="container">
+    <div class="welcome-card">
+      <h1>Welcome, Admin!</h1>
+      <p class="welcome-message">
+        You are logged into the admin dashboard. From here, you can monitor users, system reports, and resources. 
+        Please use the navigation to proceed to the desired section.
+      </p>
+    </div>
+  </main>
+<br><br>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="row">
+      <div class="col-md-3">
+        <p>Professor Ibeawuchi Amagwu Francis</p>
+        <p>Email: Frank.Amagwu@gmail.com</p>
+        <p>Phone: +234 803 328 4372</p>
+      </div>
+      <div class="col-md-3">
+        <p>Micro and Development Finance</p>
+        <p>National Open University of Nigeria</p>
+        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+          <i class="fab fa-facebook"></i> Facebook
+        </a>
+      </div>
+      <div class="col-md-3 text-center">
+        <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+        <p>All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up">Top</i></button>
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+ <script src="dashboard.js"></script>
 </body>
 </html>
