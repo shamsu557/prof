@@ -16,7 +16,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     httpOnly: true,
-    maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year session expiration
+    maxAge:   60 * 60 * 1000 // 1 year session expiration
   }
 }));
 

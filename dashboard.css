@@ -86,15 +86,15 @@ main {
 /* Text-based  link */
 .text-danger {
     cursor: pointer;
-    color: red !important;
+    color: rgba(241, 241, 228, 0.667) !important;
     text-decoration: none;
     transition: color 0.3s ease, background-color 0.3s ease; /* Smooth transition for hover */
 }
 
 /* Hover effect for link */
 .text-danger:hover {
-    color: #f8d7da !important; /* Light red on hover */
-    background-color: rgba(255, 255, 255, 0.1) !important; /* Optional: background color change */
+    color: #d2dab3 !important; /* Light red on hover */
+    background-color: rgba(247, 239, 239, 0.781) !important; /* Optional: background color change */
 }
 
 /* Ensure the menu icon is centered on mobile devices */
