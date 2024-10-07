@@ -15,7 +15,19 @@
     <div class="marquee-text">
       Welcome to the Login page. Please log in to access your account and explore our services!
     </div>
-  <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
+  <div> <div>
+      <a href="about.html" title="Click to learn more about me" style="position: relative; display: inline-block;">
+        <img src="prof.jpeg" class="fixed-image" alt="Professor Picture" style="cursor: pointer;">
+      
+        <!-- The hoverable pop-up message -->
+        <div style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+                    background-color: #6b6767; padding: 10px; border: 1px solid #383737; border-radius: 5px; 
+                    text-align: center; white-space: nowrap;" id="hoverMessage">
+          About Me
+        </div>
+      </a>
+    </div>
+    </div>
   </div>  
   <div class="container">
     <form action="/login" method="POST" class="border p-4 shadow-sm rounded">
