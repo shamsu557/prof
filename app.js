@@ -318,7 +318,7 @@ app.post('/adminLogin', (req, res) => {
 
 // API Endpoint to fetch books
 app.get('/api/books', (req, res) => {
-  const query = 'SELECT id, bookTitle, file_name, image FROM books';
+  const query = 'SELECT id, bookTitle, file_name, image FROM books ORDER BY date_added DESC';
   
   db.query(query, (err, results) => {
     if (err) {
@@ -331,7 +331,7 @@ app.get('/api/books', (req, res) => {
 
 // API Endpoint to fetch papers
 app.get('/api/papers', (req, res) => {
-  const query = 'SELECT id, paperTitle, file_name, image FROM papers';
+  const query = 'SELECT id, paperTitle, file_name, image FROM papers ORDER BY date_added DESC';
   
   db.query(query, (err, results) => {
     if (err) {
