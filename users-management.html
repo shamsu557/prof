@@ -1,88 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="dashboard.css">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
-</head>
-
-<body>
-    <!-- First Navbar (Images and Admin Dashboard Text) -->
-    <nav class="navbar navbar-light bg-dark fixed-top first-navbar">
-        <img src="educap.jfif" alt="Education Cap" class="circular-img fixed-left-img">
-        <span class="navbar-brand mx-auto text-white">Admin Dashboard</span>
-        <img src="prof.jpeg" alt="Professor" class="circular-img fixed-right-img">
-    </nav>
-
-    <!-- Second Navbar (Navbar Items) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark second-navbar">
-        <button class="navbar-toggler mx-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="admin-dashboard.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="overview.html">Reports</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="resource-management.html">Resource Management</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="users-management.html">User Management</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="#" onclick="logout()">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="dashboard.css">
     
-    <br><br>
+</head>
+<body>
 
-    <!-- User Management Section -->
-    <div class="container mt-5">
-        <h2 class="text-center bg-light">User Management</h2>
-        <ul id="userList" class="list-group"></ul>
-    </div>
-<br><br><br>
- <!-- Footer -->
-    <div class="footer">
-        <div class="row">
-            <div class="col-md-3">
-                <p>Professor Ibeawuchi Amagwu Francis</p>
-                <p>Email: Frank.Amagwu@gmail.com</p>
-                <p>Phone: +234 803 328 4372</p>
-            </div>
-            <div class="col-md-3">
-                <p>Micro and Development Finance</p>
-                <p>National Open University of Nigeria</p>
-                <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-                    <i class="fab fa-facebook"></i> Facebook
-                </a>
-            </div>
-            <div class="col-md-3 text-center">
-                <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
-                <p>All rights reserved.</p>
-            </div>
-        </div>
-    </div>
+ <!-- First Navbar (Images and Admin Dashboard Text) -->
+<nav class="navbar navbar-light bg-dark fixed-top first-navbar">
+  <!-- Left image (Education Cap) -->
+  <img src="educap.jfif" alt="Education Cap" class="circular-img fixed-left-img">
+  
+  <!-- Navbar brand (Admin Dashboard text) centered -->
+  <span class="navbar-brand mx-auto text-white">Admin&nbsp;&nbsp;Dashboard</span>
+  
+  <!-- Right image (Professor) -->
+  <img src="prof.jpeg" alt="Professor" class="circular-img fixed-right-img">
+</nav>
 
-    <!-- Back to top button -->
-    <button onclick="topFunction()" id="myBtn" title="Go to top" class="btn btn-danger">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-<!-- Bootstrap and jQuery Scripts -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Second Navbar (Navbar Items) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark second-navbar">
+  <!-- Toggler for mobile view -->
+  <button class="navbar-toggler mx-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Collapsible navbar items -->
+  <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="admin-dashboard.html">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="overview.html">Reports</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="resource-management.html">Resource Management</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="users-management.html">User Management</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="#" onclick="logout()">Logout</a> <!-- Text-based logout -->
+      </li>
+    </ul>
+  </div>
+</nav>
+<br>
+<br>
+
+  <!-- User Management Section -->
+  <div class="container mt-5">
+    <h2 class="text-center bg-light">User Management</h2>
+    <ul id="userList" class="list-group"></ul>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="row">
+      <div class="col-md-3">
+        <p>Professor Ibeawuchi Amagwu Francis</p>
+        <p>Email: Frank.Amagwu@gmail.com</p>
+        <p>Phone: +234 803 328 4372</p>
+      </div>
+      <div class="col-md-3">
+        <p>Micro and Development Finance</p>
+        <p>National Open University of Nigeria</p>
+        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+          <i class="fab fa-facebook"></i> Facebook
+        </a>
+      </div>
+      <div class="col-md-3 text-center">
+        <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+        <p>All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  
   <script src="usersManagment.js"></script>
-
 </body>
 </html>
