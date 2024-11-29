@@ -67,7 +67,7 @@ main {
 
 /* Second Navbar - Contains menu items */
 .second-navbar {
-    margin-top: 60px; /* Add space between the two navbars */
+    margin-top: -10px; /* Add space between the two navbars */
 }
 
 .navbar-toggler {
@@ -97,15 +97,18 @@ main {
     background-color: rgba(247, 239, 239, 0.781) !important; /* Optional: background color change */
 }
 
-/* Ensure the menu icon is centered on mobile devices */
+/* Ensure the menu icon is on the left side for mobile devices */
 @media (max-width: 992px) {
     .navbar-toggler {
-        left: 50%;
-        transform: translateX(-50%);
+        z-index: 1000; /* Ensure the toggle button is above other elements */
+        position: relative;
+        right: 10px; /* Move the icon to the left */
+        top: 50%; /* Vertically center the icon */
+        transform: translateX(-50%); /* Center it vertically */
     }
 
     .navbar-collapse {
-        justify-content: center;
+        justify-content: flex-start; /* Align items to the left */
     }
 }
 
